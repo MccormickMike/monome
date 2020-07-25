@@ -77,7 +77,7 @@
 	~channels[channelIndex]["io"][1][5] = {
 		if(Ndef((inName ++ channelIndex).asSymbol).isPlaying,{
 			Ndef((inName ++ channelIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
-			Ndef((inName ++ channelIndex).asSymbol).xset(\t_trig,1); // this trigger is .xset -- do I still want that???
+			Ndef((inName ++ channelIndex).asSymbol).xset(\t_trig,1); // this trigger is .xset -- do I still want that??? Or is muting a sudden command?
 			"mute% on".format(channelIndex).postln
 		},{
 			"%% not playing".format(inName,channelIndex).postln
@@ -220,7 +220,7 @@
 	~channels[channelIndex]["io"][2][2] = {}; // level 2 - medium impulse arg?
 	~channels[channelIndex]["io"][2][3] = {}; // level 3 - fast impulse arg?
 	~channels[channelIndex]["io"][2][4] = {}; // mod - change impulse arg?
-	~channels[channelIndex]["io"][2][5] = {}; // t_trg = ????
+	~channels[channelIndex]["io"][2][5] = {}; // t_trig = ????
 	~channels[channelIndex]["io"][2][6] = {}; //
 
 	3.do({

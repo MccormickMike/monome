@@ -75,6 +75,9 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 					/*--------------------------------------------------------------------*/
 
 					"something something analysis module".postln;
+
+
+					// when the analyser is turned on, it should also turn on an OSCdef with it?
 				}
 			}
 
@@ -351,7 +354,12 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 		});
 	});
 
-}, '/monome/grid/key');
+},'/monome/grid/key');
+
+// 4.do({
+// 	arg channelIndex;
+// 	OSCdef(\analyserResponder)
+// });
 
 "OSCdefs Loaded".postln;
 )

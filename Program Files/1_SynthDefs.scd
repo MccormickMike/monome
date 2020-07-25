@@ -55,14 +55,49 @@ SynthDef(\recorder,{
 			sig = BHiShelf.ar(sig,filtFreqHi.linlin(0.0,1.0,20,20000),rsHi,dBHi);
 		},
 
-		"analyser" -> {},
+		"analyser" -> {
+			arg inBus,chan,frames=1024,thresh=0.2,trigFreq=4;
+
+			var sig = In.ar(inBus,1);
+			var trig = Impulse.kr(trigFreq);
+			var chain = FFT(LocalBuf(frames),sig);
+			var specs,busVars;
+
+			var amp = Amplitude.kr(sig);
+			var silence = DetectSilence.ar(sig + Impulse.ar(0),0.01);
+			var onsets = Onsets.kr(chain,thresh, \rcomplex);
+			var centroid = SpecCentroid.kr(chain);
+			var specFlatness = SpecFlatness.kr(chain);
+
+			var freq, hasFreq, density, meanIOI, varianceIOI;
+
+			# freq, hasFreq = Pitch.kr(LPF.ar(sig,2000) , ampThreshold: 0.01, median: 7);
+			# density, meanIOI, varianceIOI = OnsetStatistics.kr(onsets,1.0);  // should this be scaled related to trigFreq?
+
+			//do I need meanIOI and varianceIOI??
+
+			specs = [amp,silence,onsets,centroid.explin(20,20000,0.0,1.0),specFlatness,freq.explin(20,20000,0.0,1.0),hasFreq,density,meanIOI,varianceIOI];
+
+			SendReply.kr(trig, '/analysis', specs);
+			busVars = thisFunction.def.varNames[5..];
+
+			specs.collect({
+				arg spec, index;
+				var busName;
+
+				busName = busVars[index].asString ++ "Bus";
+
+				Out.kr(~busses[chan.source.values[1]][busName],spec)
+
+			});
+		},
 	],
 
 	"transforms" -> (
 		[(
 			name: "ringMod",
 			func: {
-				arg inBus,dev,t_trig,amp=1.0;
+				arg inBus,dev,dummyArg,t_trig,amp=1.0;
 				var env,freq,hasFreq,mod,sig;
 
 				sig = In.ar(inBus,1);
@@ -176,26 +211,6 @@ SynthDef(\recorder,{
 		++
 
 		[nil]
-		/*[(
-		name: "blstrDelay",
-		func: { //rate = dustTrig, speed = impulseTrig, t_trig = t_trig
-		arg inBus,t_trig,rate,speed,amp=1.0;
-		var sig,trig,chain,gate;
-
-		trig = t_trig;
-		rate = Select.kr(rate.round(1),[2/3,6/7,7/8,3/2,7/6,8/7]);
-		gate = EnvGen.ar(Env.sine(0.5),trig);
-		sig = In.ar(inBus,1);
-		sig = (sig*gate) + LocalIn.ar(1);
-		sig = PitchShift.ar(sig,0.2,rate,0,0.05);
-		sig = DelayC.ar(sig,0.08,speed.clip(0.01,0.08));
-		LocalOut.ar(sig);
-		sig = LeakDC.ar(sig);
-		sig = Pan2.ar(sig,0,amp);
-		},
-		args: [\rate,\speed],
-		vals: [[0,3,5],[0.08,0.05,0.02]],
-		)]*/
 
 		++
 

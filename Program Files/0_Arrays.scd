@@ -35,30 +35,25 @@
 
 ~buffers = {Array.fill(3,{Buffer.alloc(s, s.sampleRate * 12, 1)})} ! 4;
 
-/*~busses = {
-Dictionary[
-"ampBus" -> Bus.control(s,1),
-"silenceBus" -> Bus.control(s,1),
-"freqBus" -> Bus.control(s,1),
-"hasFreqBus" -> Bus.control(s,1),
-"onsetsBus" -> Bus.control(s,1),
-"centroidBus" -> Bus.control(s,1),
-"specFlatnessBus" -> Bus.control(s,1),
-"densityBus" -> Bus.control(s,1),
-"meanIOIBus" -> Bus.control(s,1),
-"varianceIOIBus" -> Bus.control(s,1),
-]
-} ! 4;*/
-
-//make an array of player pan arguments - closely source bonded processes should use those values in multiplayer/multichannel settings
-//when adding multichannel, can change all Ndef symbol names to be concatenative
-// if(~multichannel == true;{"ringMod" ++ "Multi"}) etc.
+~busses = {
+	Dictionary[
+		"ampBus" -> Bus.control(s,1),
+		"silenceBus" -> Bus.control(s,1),
+		"freqBus" -> Bus.control(s,1),
+		"hasFreqBus" -> Bus.control(s,1),
+		"onsetsBus" -> Bus.control(s,1),
+		"centroidBus" -> Bus.control(s,1),
+		"specFlatnessBus" -> Bus.control(s,1),
+		"densityBus" -> Bus.control(s,1),
+		"meanIOIBus" -> Bus.control(s,1),
+		"varianceIOIBus" -> Bus.control(s,1),
+	]
+} ! 4;
 
 //groups
 ~inGroup = Group(s,\addToHead);
 ~outGroup = Group(s,\addToTail);
 ~transformsGroup = Group(~outGroup,\addBefore);
-
 
 "Arrays Loaded".postln;
 )
