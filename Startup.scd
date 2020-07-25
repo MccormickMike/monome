@@ -7,27 +7,15 @@ s.freeAll;
 
 s.waitForBoot({
 
-	(PathName(thisProcess.nowExecutingPath).parentPath +/+ "Monome_ArraysNEW.scd").load;
+	"Players.scd".loadRelative;
 
 	s.sync;
 
-	(PathName(thisProcess.nowExecutingPath).parentPath +/+ "Monome_OSCDefsNEW.scd").load;
+	PathName((PathName(thisProcess.nowExecutingPath).parentPath +/+ "Program Files/")).entries.do({
+		arg entry, index;
 
-	s.sync;
-
-	(PathName(thisProcess.nowExecutingPath).parentPath +/+ "Monome_SynthDefsNEW.scd").load;
-
-	s.sync;
-
-	(PathName(thisProcess.nowExecutingPath).parentPath +/+ "Monome_PlayersNEW.scd").load;
-
-	s.sync;
-
-	(PathName(thisProcess.nowExecutingPath).parentPath +/+ "Monome_FunctionsNEW.scd").load;
-
-	s.sync;
-
-	// (PathName(thisProcess.nowExecutingPath).parentPath +/+ "Monome_GUINEW.scd").load;
+		if(index < 4,{entry.fullPath.load}) // remove when the GUI works!
+	});
 
 	"Monome Ready".postln;
 	//maybe make a function here that opens the first channel? In case I need to be ready after a reboot during a concert
@@ -37,24 +25,11 @@ s.waitForBoot({
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//screensaver...
-
+// screensaver...could be cooler?!?
 (
 Tdef(\waves,{
-	var count = Array.fill2D(16,16,{
-		arg i,j;
-
-		var rand = {0.75.rand}!4;
-
-		case
-		{i % 2 == 0 and: {j % 3 == 0}}{rand[0]}
-		{i % 5 == 0 and: {j % 7 == 0}}{rand[1]}
-		{i % 7 == 0 and: {j % 5 == 0}}{rand[2]}
-		{i % 3 == 0 and: {j % 2 == 0}}{rand[3]}
-		{1.0.rand}
-	});
+	var value = {Array.fill(16,1.0.rand)} ! 16;
 	var offset = 0;
-
 	loop{
 
 		16.do({
@@ -62,17 +37,18 @@ Tdef(\waves,{
 
 			16.do({
 				arg j;
+				var x = i + offset % 16;
+				var y = j + offset % 16;
 
-				~monome.levset(i +(offset %15),j-(offset %15),count[i][j].sin * 15);
-				count[i][j] = count[i][j] + 0.1;
-				offset = offset + (j/(i+1));
+				~monome.levset(x,y,value[x][y].sin * 15);
+				value[x][y] = value[x][y] + 0.008;
+				offset = 16.rand;
+				0.001.wait;
 			});
 		});
-
-		0.05.wait;
 	};
 
 }).play
-)
+);
 
 Tdef(\waves).stop

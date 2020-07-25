@@ -27,8 +27,8 @@
 		"previousImpulseTime" -> 0,
 		"cleared" -> 0,
 		"fadeTime" -> 0.08,
-		"tenFold" -> 1,
-		"tenth" -> 1,
+		"squared" -> false,
+		"sqrt" -> false,
 		"keysHeld" -> (Array.fill(3,0)),
 	]
 } ! 4;

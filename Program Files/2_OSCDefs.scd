@@ -192,7 +192,7 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 			{channelColIndex == 1}{
 
 				case
-				{channelRowIndex == 0}{                                                                                   // need to add normalization
+				{channelRowIndex == 0}{
 
 					case
 					{~control[controlIndex]["cleared"] == 0}{
@@ -201,27 +201,26 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 
 						if(bps < 4.0, {
 							"dust Freq: %".format(bps.reciprocal).postln;
-							~control[controlIndex]["dustTrig"] = (bps.reciprocal);
-							Tdef(("dustTrig" ++ controlIndex).asSymbol,
-								{
-									inf.do({
-										~monome.levset((controlIndex * 4) + 1,channelRowIndex + 12,15);
-										bps.wait;
-										~monome.levset((controlIndex * 4) + 1,channelRowIndex + 12,0);
-										bps.wait;
-									})
-							}).play(doReset: true);
+							~control[controlIndex]["dustTrig"] = (bps.reciprocal).explin(0.25,10.0,0.0,1.0);
+							Tdef(("dustTrig" ++ controlIndex).asSymbol,{
+								inf.do({
+									~monome.levset((controlIndex * 4) + 1,channelRowIndex + 12,15);
+									(bps/2).wait;
+									~monome.levset((controlIndex * 4) + 1,channelRowIndex + 12,0);
+									(bps/2).wait;
+								})
+							}).play;
 						});
 						~control[controlIndex]["previousDustTime"] = currentTapTime;
 					}
 					{~control[controlIndex]["cleared"] == 1}{
-						~control[controlIndex]["dustTrig"] = 1;
+						~control[controlIndex]["dustTrig"] = 0;
 						Tdef(("dustTrig" ++ controlIndex).asSymbol).stop;
-						~monome.levset((controlIndex * 4) + 1,channelRowIndex + 12,15);
+						~monome.levset((controlIndex * 4) + 1,channelRowIndex + 12,0);
 						"dustTrig cleared".postln;
 					}
 				}
-				{channelRowIndex == 1}{                                                                                    // need to add normalization
+				{channelRowIndex == 1}{
 
 					case
 					{~control[controlIndex]["cleared"] == 0}{
@@ -230,23 +229,22 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 
 						if(bps < 4.0, {
 							"impulse Freq: %".format(bps.reciprocal).postln;
-							~control[controlIndex]["impulseTrig"] = (bps.reciprocal);
-							Tdef(("impulseTrig" ++ controlIndex).asSymbol,
-								{
-									inf.do({
-										~monome.levset((controlIndex * 4) + 1,channelRowIndex + 12,15);
-										bps.wait;
-										~monome.levset((controlIndex * 4) + 1,channelRowIndex + 12,0);
-										bps.wait;
-									})
-							}).play(doReset: true);
+							~control[controlIndex]["impulseTrig"] = (bps.reciprocal).explin(0.25,10.0,0.0,1.0);
+							Tdef(("impulseTrig" ++ controlIndex).asSymbol,{
+								inf.do({
+									~monome.levset((controlIndex * 4) + 1,channelRowIndex + 12,15);
+									(bps/2).wait;
+									~monome.levset((controlIndex * 4) + 1,channelRowIndex + 12,0);
+									(bps/2).wait;
+								})
+							}).play;
 						});
 						~control[controlIndex]["previousImpulseTime"] = currentTapTime;
 					}
 					{~control[controlIndex]["cleared"] == 1}{
-						~control[controlIndex]["impulseTrig"] = 1;
+						~control[controlIndex]["impulseTrig"] = 0;
 						Tdef(("impulseTrig" ++ controlIndex).asSymbol).stop;
-						~monome.levset((controlIndex * 4) + 1,channelRowIndex + 12,15);
+						~monome.levset((controlIndex * 4) + 1,channelRowIndex + 12,0);
 						"impulseTrig cleared".postln;
 					}
 				}
@@ -280,15 +278,15 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 				{channelRowIndex == 1}{
 
 					case
-					{~control[controlIndex]["tenFold"] == 1}{~control[controlIndex]["tenFold"] = 10;~monome.levset(col,row,12);"tenfold".postln}
-					{~control[controlIndex]["tenFold"] == 10}{~control[controlIndex]["tenFold"] = 1;~monome.levset(col,row,0)};
+					{~control[controlIndex]["sqrt"] == false}{~control[controlIndex]["sqrt"] = true;~monome.levset(col,row,12);"sqrt".postln}
+					{~control[controlIndex]["sqrt"] == true}{~control[controlIndex]["sqrt"] = false;~monome.levset(col,row,0)};
 
 				}
 				{channelRowIndex == 2}{
 
 					case
-					{~control[controlIndex]["tenth"] == 1}{~control[controlIndex]["tenth"] = 0.1; ~monome.levset(col,row,12); "tenth".postln}
-					{~control[controlIndex]["tenth"] == 0.1}{~control[controlIndex]["tenth"] = 1; ~monome.levset(col,row,0)};
+					{~control[controlIndex]["squared"] == false}{~control[controlIndex]["squared"] = true; ~monome.levset(col,row,12); "squared".postln}
+					{~control[controlIndex]["squared"] == true}{~control[controlIndex]["squared"] = false; ~monome.levset(col,row,0)};
 				}
 				{channelRowIndex == 3}{
 					~control[controlIndex]["keysHeld"][1] = value;

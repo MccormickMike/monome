@@ -3,6 +3,22 @@
 4.do({
 	arg channelIndex;
 	var inName;
+	var modFunc = {
+		arg trigRate;
+		case
+		{~control[channelIndex]["sqrt"] == ~control[channelIndex]["squared"]}{trigRate}
+		{~control[channelIndex]["sqrt"]}{trigRate.sqrt}
+		{~control[channelIndex]["squared"]}{trigRate.squared}
+		// could add a postln here for a bit of help?
+	};
+
+
+	/*
+
+	consider adding: if(Ndef((inName ++ channelIndex).asSymbol).isPlaying.not,{raise an error when transforms are activated?})
+
+	*/
+
 
 	///////////////////////////////////////////////////// io section
 
@@ -61,7 +77,7 @@
 	~channels[channelIndex]["io"][1][5] = {
 		if(Ndef((inName ++ channelIndex).asSymbol).isPlaying,{
 			Ndef((inName ++ channelIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
-			Ndef((inName ++ channelIndex).asSymbol).xset(\t_trig,1);
+			Ndef((inName ++ channelIndex).asSymbol).xset(\t_trig,1); // this trigger is .xset -- do I still want that???
 			"mute% on".format(channelIndex).postln
 		},{
 			"%% not playing".format(inName,channelIndex).postln
@@ -331,8 +347,8 @@
 					if(Ndef((name ++ channelIndex).asSymbol).isPlaying,{
 						Ndef((name ++ channelIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
 						Ndef((name ++ channelIndex).asSymbol).xset(
-							args[0],~control[channelIndex]["dustTrig"] * ~control[channelIndex]["tenFold"] * ~control[channelIndex]["tenth"],
-							args[1],~control[channelIndex]["impulseTrig"] * ~control[channelIndex]["tenFold"] * ~control[channelIndex]["tenth"],
+							args[0],modFunc.(~control[channelIndex]["dustTrig"]),
+							args[1],modFunc.(~control[channelIndex]["impulseTrig"]),
 							\t_trig,0
 						)
 					},{
@@ -525,8 +541,8 @@
 					if(Ndef((name ++ channelIndex ++ rowIndex).asSymbol).isPlaying,{
 						Ndef((name ++ channelIndex ++ rowIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
 						Ndef((name ++ channelIndex ++ rowIndex).asSymbol).xset(
-							args[0],~control[channelIndex]["dustTrig"] * ~control[channelIndex]["tenFold"] * ~control[channelIndex]["tenth"],
-							args[1],~control[channelIndex]["impulseTrig"] * ~control[channelIndex]["tenFold"] * ~control[channelIndex]["tenth"],
+							args[0],modFunc.(~control[channelIndex]["dustTrig"]),
+							args[1],modFunc.(~control[channelIndex]["impulseTrig"]),
 							\t_trig,0
 						)
 					},{

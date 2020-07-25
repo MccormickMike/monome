@@ -7,10 +7,10 @@
 		inBus: [0],
 		compThresh: 0.5,
 
-		filtFreqHi: 2000,
+		filtFreqHi: 2000.linlin(20,20000,0.0,1.0),
 		rsHi: 0.25,
 
-		filtFreqLo: 80,
+		filtFreqLo: 80.linlin(20,20000,0.0,1.0),
 		rsLo: 0.25,
 
 		pan: 0,
@@ -24,10 +24,10 @@
 		inBus: [1],
 		compThresh: 0.5,
 
-		filtFreqHi: 2000,
+		filtFreqHi: 2000.linlin(20,20000,0.0,1.0),
 		rsHi: 0.25,
 
-		filtFreqLo: 80,
+		filtFreqLo: 80.linlin(20,20000,0.0,1.0),
 		rsLo: 0.25,
 
 		pan: 0,
@@ -41,10 +41,10 @@
 		inBus: [2],
 		compThresh: 0.5,
 
-		filtFreqHi: 2000,
+		filtFreqHi: 2000.linlin(20,20000,0.0,1.0),
 		rsHi: 0.25,
 
-		filtFreqLo: 80,
+		filtFreqLo: 80.linlin(20,20000,0.0,1.0),
 		rsLo: 0.25,
 
 		pan: 0,
@@ -58,10 +58,10 @@
 		inBus: [3],
 		compThresh: 0.5,
 
-		filtFreqHi: 2000,
+		filtFreqHi: 2000.linlin(20,20000,0.0,1.0),
 		rsHi: 0.25,
 
-		filtFreqLo: 80,
+		filtFreqLo: 80.linlin(20,20000,0.0,1.0),
 		rsLo: 0.25,
 
 		pan: 0,
@@ -72,6 +72,5 @@
 	),
 ];
 
-"Player Info Loaded".postln
-
+"Player Info Loaded".postln;
 )
