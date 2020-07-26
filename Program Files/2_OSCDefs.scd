@@ -32,7 +32,7 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 
 						case
 						{~control[channelIndex]["levels"].sum == 0}{"Choose level!".warn}
-						{intensity == 0}{~channels[channelIndex]["io"][channelRowIndex][0].value;"intense".postln}
+						{intensity == 0}{~channels[channelIndex]["io"][channelRowIndex][0].value}
 						{intensity == 1}{~channels[channelIndex]["io"][channelRowIndex][1].value}
 						{intensity == 2}{~channels[channelIndex]["io"][channelRowIndex][2].value}
 						{intensity == 3}{~channels[channelIndex]["io"][channelRowIndex][3].value};

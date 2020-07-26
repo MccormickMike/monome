@@ -30,9 +30,11 @@
 
 	// turn inPlayer off
 	~channels[channelIndex]["io"][0][0] = {
-		if(Ndef((inName ++ channelIndex).asSymbol).isPlaying,{
-			Ndef((inName ++ channelIndex).asSymbol).end(fadeTime: ~control[channelIndex]["fadeTime"]);
-			"%% off".format(inName,channelIndex).postln
+		var synthKey = (inName ++ channelIndex).asSymbol;
+
+		if(Ndef(synthKey).isPlaying,{
+			Ndef(synthKey).end(fadeTime: ~control[channelIndex]["fadeTime"]);
+			"% off".format(synthKey).postln
 		})
 	};
 
@@ -40,14 +42,16 @@
 
 	// level 1 inPlayer on -> what are the levels controlling???
 	~channels[channelIndex]["io"][0][1] = {
-		if(Ndef((inName ++ channelIndex).asSymbol).isPlaying.not,{
-			Ndef((inName ++ channelIndex).asSymbol,~synths["i/o synths"][inName]).play(
+		var synthKey = (inName ++ channelIndex).asSymbol;
+
+		if(Ndef(synthKey).isPlaying.not,{
+			Ndef(synthKey,~synths["i/o synths"][inName]).play(
 				out: ~players[channelIndex][\outBus],
 				group: ~inGroup,
 				fadeTime: ~control[channelIndex]["fadeTime"],
 				addAction: \addToHead
 			);
-			Ndef((inName ++ channelIndex).asSymbol).set(
+			Ndef(synthKey).set(
 				\inBus,~players[channelIndex][\inBus][0],
 				\compThresh,~players[channelIndex][\compThresh],
 				\filtFreqHi,~players[channelIndex][\filtFreqHi],
@@ -58,10 +62,10 @@
 				\pan,~players[channelIndex][\pan],
 				\sendBus,~players[channelIndex][\sendBus],
 			);
-			"%% on".format(inName,channelIndex).postln
+			"% on".format(synthKey).postln
 		},{
-			Ndef((inName ++ channelIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
-			Ndef((inName ++ channelIndex).asSymbol).xset()                                                            // what goes here??
+			Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
+			Ndef(synthKey).xset()                                                      // what goes here??
 		})
 	};
 
@@ -75,12 +79,14 @@
 
 	// t_trig => output mute
 	~channels[channelIndex]["io"][1][5] = {
-		if(Ndef((inName ++ channelIndex).asSymbol).isPlaying,{
-			Ndef((inName ++ channelIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
-			Ndef((inName ++ channelIndex).asSymbol).xset(\t_trig,1); // this trigger is .xset -- do I still want that??? Or is muting a sudden command?
+		var synthKey = (inName ++ channelIndex).asSymbol;
+
+		if(Ndef(synthKey).isPlaying,{
+			Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
+			Ndef(synthKey).xset(\t_trig,1);         // this trigger is .xset -- do I still want that??? Or is muting a sudden command?
 			"mute% on".format(channelIndex).postln
 		},{
-			"%% not playing".format(inName,channelIndex).postln
+			"% not playing".format(synthKey).postln
 		}
 	)};
 
@@ -88,11 +94,13 @@
 
 	// inPlayer volume
 	~channels[channelIndex]["io"][1][6] = {
-		if(Ndef((inName ++ channelIndex).asSymbol).isPlaying,{
-			Ndef((inName ++ channelIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
-			Ndef((inName ++ channelIndex).asSymbol).xset(\amp,(~control[channelIndex]["volume"].sum) / 12)
+		var synthKey = (inName ++ channelIndex).asSymbol;
+
+		if(Ndef(synthKey).isPlaying,{
+			Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
+			Ndef(synthKey).xset(\amp,(~control[channelIndex]["volume"].sum) / 12)
 		},{
-			"%% not playing".format(inName,channelIndex).postln
+			"% not playing".format(synthKey).postln
 		}
 	)};
 
@@ -102,9 +110,11 @@
 
 	// turn outPlayer off
 	~channels[channelIndex]["io"][1][0] = {
-		if(Ndef((\outPlayer ++ channelIndex).asSymbol).isPlaying,{
-			Ndef((\outPlayer ++ channelIndex).asSymbol).end(fadeTime: ~control[channelIndex]["fadeTime"]);
-			"outPlayer% off".format(channelIndex).postln
+		var synthKey = ("outPlayer" ++ channelIndex).asSymbol;
+
+		if(Ndef(synthKey).isPlaying,{
+			Ndef(synthKey).end(fadeTime: ~control[channelIndex]["fadeTime"]);
+			"% off".format(synthKey).postln
 		})
 	};
 
@@ -112,22 +122,24 @@
 
 	// outPlayer level 1
 	~channels[channelIndex]["io"][1][1] = {
-		if(Ndef((\outPlayer ++ channelIndex).asSymbol).isPlaying.not,{
-			Ndef((\outPlayer ++ channelIndex).asSymbol,~synths["i/o synths"]["outPlayer"]).play(
+		var synthKey = ("outPlayer" ++ channelIndex).asSymbol;
+
+		if(Ndef(synthKey).isPlaying.not,{
+			Ndef(synthKey,~synths["i/o synths"]["outPlayer"]).play(
 				out: ~players[channelIndex][\hardwareOut],
 				group: ~outGroup,
 				fadeTime: ~control[channelIndex]["fadeTime"],
 				addAction: \addToTail
 			);
-			Ndef((\outPlayer ++ channelIndex).asSymbol).set(
+			Ndef(synthKey).set(
 				\inBus,~players[channelIndex][\outBus],
 				\amp,(~control[channelIndex]["volume"].sum) / 12,
 				\mix,0.001
 			);
-			"outPlayer% on - lvl 1".format(channelIndex).postln
+			"% on - lvl 1".format(synthKey).postln
 		},{
-			Ndef((\outPlayer ++ channelIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
-			Ndef((\outPlayer ++ channelIndex).asSymbol).xset(\inBus,~players[channelIndex][\outBus],\mix,0.001)
+			Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
+			Ndef(synthKey).xset(\inBus,~players[channelIndex][\outBus],\mix,0.001)
 		}
 	)};
 
@@ -135,22 +147,24 @@
 
 	// outPlayer level 2
 	~channels[channelIndex]["io"][1][2] = {
-		if(Ndef((\outPlayer ++ channelIndex).asSymbol).isPlaying.not,{
-			Ndef((\outPlayer ++ channelIndex).asSymbol,~synths["i/o synths"]["outPlayer"]).play(
+		var synthKey = ("outPlayer" ++ channelIndex).asSymbol;
+
+		if(Ndef(synthKey).isPlaying.not,{
+			Ndef(synthKey,~synths["i/o synths"]["outPlayer"]).play(
 				out: ~players[channelIndex][\hardwareOut],
 				group: ~outGroup,
 				fadeTime: ~control[channelIndex]["fadeTime"],
 				addAction: \addToTail
 			);
-			Ndef((\outPlayer ++ channelIndex).asSymbol).set(
+			Ndef(synthKey).set(
 				\inBus,~players[channelIndex][\outBus],
 				\amp,(~control[channelIndex]["volume"].sum) / 12,
 				\mix,0.05
 			);
-			"outPlayer% on - lvl 2".format(channelIndex).postln
+			"% on - lvl 2".format(synthKey).postln
 		},{
-			Ndef((\outPlayer ++ channelIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
-			Ndef((\outPlayer ++ channelIndex).asSymbol).xset(\inBus,~players[channelIndex][\outBus],\mix,0.05)
+			Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
+			Ndef(synthKey).xset(\inBus,~players[channelIndex][\outBus],\mix,0.05)
 		}
 	)};
 
@@ -158,22 +172,24 @@
 
 	// outPlayer level 3
 	~channels[channelIndex]["io"][1][3] = {
-		if(Ndef((\outPlayer ++ channelIndex).asSymbol).isPlaying.not,{
-			Ndef((\outPlayer ++ channelIndex).asSymbol,~synths["i/o synths"]["outPlayer"]).play(
+		var synthKey = ("outPlayer" ++ channelIndex).asSymbol;
+
+		if(Ndef(synthKey).isPlaying.not,{
+			Ndef(synthKey,~synths["i/o synths"]["outPlayer"]).play(
 				out: ~players[channelIndex][\hardwareOut],
 				group: ~outGroup,
 				fadeTime: ~control[channelIndex]["fadeTime"],
 				addAction: \addToTail
 			);
-			Ndef((\outPlayer ++ channelIndex).asSymbol).set(
+			Ndef(synthKey).set(
 				\inBus,~players[channelIndex][\outBus],
 				\amp,(~control[channelIndex]["volume"].sum) / 12,
 				\mix,0.1
 			);
-			"outPlayer% on - lvl 3".format(channelIndex).postln
+			"% on - lvl 3".format(synthKey).postln
 		},{
-			Ndef((\outPlayer ++ channelIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
-			Ndef((\outPlayer ++ channelIndex).asSymbol).xset(\inBus,~players[channelIndex][\outBus],\mix,0.1)
+			Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
+			Ndef(synthKey).xset(\inBus,~players[channelIndex][\outBus],\mix,0.1)
 		}
 	)};
 
@@ -193,11 +209,13 @@
 
 	// outPlayer volume
 	~channels[channelIndex]["io"][1][6] = {
-		if(Ndef((\outPlayer ++ channelIndex).asSymbol).isPlaying,{
-			Ndef((\outPlayer ++ channelIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
-			Ndef((\outPlayer ++ channelIndex).asSymbol).xset(\amp,(~control[channelIndex]["volume"].sum) / 12)
+		var synthKey = ("outPlayer" ++ channelIndex).asSymbol;
+
+		if(Ndef(synthKey).isPlaying,{
+			Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
+			Ndef(synthKey).xset(\amp,(~control[channelIndex]["volume"].sum) / 12)
 		},{
-			"outPlayer% not playing".format(channelIndex).postln
+			"% not playing".format(synthKey).postln
 		}
 	)};
 
@@ -207,9 +225,11 @@
 
 	// turn analyser off
 	~channels[channelIndex]["io"][2][0] = {
-		if(Ndef((\analyser ++ channelIndex).asSymbol).isPlaying,{
-			Ndef((\analyser ++ channelIndex).asSymbol).end(fadeTime: ~control[channelIndex]["fadeTime"]);
-			"analyser% off".format(channelIndex).postln
+		var synthKey = ("analyser" ++ channelIndex).asSymbol;
+
+		if(Ndef(synthKey).isPlaying,{
+			Ndef(synthKey).end(fadeTime: ~control[channelIndex]["fadeTime"]);
+			"% off".format(synthKey).postln
 		})
 	};
 
@@ -244,11 +264,13 @@
 
 				// turn transform off
 				~channels[channelIndex]["transforms"][rowIndex][colIndex][0] = {
-					if(Ndef((name ++ channelIndex).asSymbol).isPlaying,{
-						Ndef((name ++ channelIndex).asSymbol).end(fadeTime: ~control[channelIndex]["fadeTime"]);
-						"%% off".format(name,channelIndex).postln;
+					var synthKey = (name ++ channelIndex).asSymbol;
+
+					if(Ndef(synthKey).isPlaying,{
+						Ndef(synthKey).end(fadeTime: ~control[channelIndex]["fadeTime"]);
+						"% off".format(synthKey).postln;
 					},{
-						"%% not playing".format(name,channelIndex).postln;
+						"% not playing".format(synthKey).postln;
 					}
 				)};
 
@@ -256,23 +278,25 @@
 
 				// first level arguments
 				~channels[channelIndex]["transforms"][rowIndex][colIndex][1] = {
-					if(Ndef((name ++ channelIndex).asSymbol).isPlaying.not,{
-						Ndef((name ++ channelIndex).asSymbol,func).play(
+					var synthKey = (name ++ channelIndex).asSymbol;
+
+					if(Ndef(synthKey).isPlaying.not,{
+						Ndef(synthKey,func).play(
 							out: ~players[channelIndex][\outBus],
 							group: ~transformsGroup,
 							fadeTime: ~control[channelIndex]["fadeTime"]
 						);
-						Ndef((name ++ channelIndex).asSymbol).set(
+						Ndef(synthKey).set(
 							\inBus,~players[channelIndex][\sendBus],
 							args[0],vals[0][0],
 							args[1],vals[1][0],
 							\t_trig,0,
 							\amp,(~control[channelIndex]["volume"].sum) / 12
 						);
-						"%% on - lvl 1".format(name,channelIndex).postln;
+						"% on - lvl 1".format(synthKey).postln;
 					},{
-						Ndef((name ++ channelIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
-						Ndef((name ++ channelIndex).asSymbol).xset(
+						Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
+						Ndef(synthKey).xset(
 							\inBus,~players[channelIndex][\sendBus],
 							args[0],vals[0][0],
 							args[1],vals[1][0],
@@ -285,23 +309,25 @@
 
 				// second level arguments
 				~channels[channelIndex]["transforms"][rowIndex][colIndex][2] = {
-					if(Ndef((name ++ channelIndex).asSymbol).isPlaying.not,{
-						Ndef((name ++ channelIndex).asSymbol,func).play(
+					var synthKey = (name ++ channelIndex).asSymbol;
+
+					if(Ndef(synthKey).isPlaying.not,{
+						Ndef(synthKey,func).play(
 							out: ~players[channelIndex][\outBus],
 							group: ~transformsGroup,
 							fadeTime: ~control[channelIndex]["fadeTime"]
 						);
-						Ndef((name ++ channelIndex).asSymbol).set(
+						Ndef(synthKey).set(
 							\inBus,~players[channelIndex][\sendBus],
 							args[0],vals[0][1],
 							args[1],vals[1][1],
 							\t_trig,0,
 							\amp,(~control[channelIndex]["volume"].sum) / 12
 						);
-						"%% on - lvl 2".format(name,channelIndex).postln
+						"% on - lvl 2".format(synthKey).postln
 					},{
-						Ndef((name ++ channelIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
-						Ndef((name ++ channelIndex).asSymbol).xset(
+						Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
+						Ndef(synthKey).xset(
 							\inBus,~players[channelIndex][\sendBus],
 							args[0],vals[0][1],
 							args[1],vals[1][1],
@@ -315,23 +341,25 @@
 				// consider changing this function to incorporate the \analyser inputs...could be randomized?!?!?
 
 				~channels[channelIndex]["transforms"][rowIndex][colIndex][3] = {
-					if(Ndef((name ++ channelIndex).asSymbol).isPlaying.not,{
-						Ndef((name ++ channelIndex).asSymbol,func).play(
+					var synthKey = (name ++ channelIndex).asSymbol;
+
+					if(Ndef(synthKey).isPlaying.not,{
+						Ndef(synthKey,func).play(
 							out: ~players[channelIndex][\outBus],
 							group: ~transformsGroup,
 							fadeTime: ~control[channelIndex]["fadeTime"]
 						);
-						Ndef((name ++ channelIndex).asSymbol).set(
+						Ndef(synthKey).set(
 							\inBus,~players[channelIndex][\sendBus],
 							args[0],vals[0][2],
 							args[1],vals[1][2],
 							\t_trig,0,
 							\amp,(~control[channelIndex]["volume"].sum) / 12
 						);
-						"%% on - lvl 3".format(name,channelIndex).postln;
+						"% on - lvl 3".format(synthKey).postln;
 					},{
-						Ndef((name ++ channelIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
-						Ndef((name ++ channelIndex).asSymbol).xset(
+						Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
+						Ndef(synthKey).xset(
 							\inBus,~players[channelIndex][\sendBus],
 							args[0],vals[0][2],
 							args[1],vals[1][2],
@@ -344,15 +372,17 @@
 
 				// mod arguments
 				~channels[channelIndex]["transforms"][rowIndex][colIndex][4] = {
-					if(Ndef((name ++ channelIndex).asSymbol).isPlaying,{
-						Ndef((name ++ channelIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
-						Ndef((name ++ channelIndex).asSymbol).xset(
+					var synthKey = (name ++ channelIndex).asSymbol;
+
+					if(Ndef(synthKey).isPlaying,{
+						Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
+						Ndef(synthKey).xset(
 							args[0],modFunc.(~control[channelIndex]["dustTrig"]),
 							args[1],modFunc.(~control[channelIndex]["impulseTrig"]),
 							\t_trig,0
 						)
 					},{
-						"%% not playing".format(name,channelIndex).postln;
+						"% not playing".format(synthKey).postln;
 					}
 				)};
 
@@ -360,10 +390,12 @@
 
 				// t_trig
 				~channels[channelIndex]["transforms"][rowIndex][colIndex][5] = {
-					if(Ndef((name ++ channelIndex).asSymbol).isPlaying,{
-						Ndef((name ++ channelIndex).asSymbol).set(\t_trig,1);
+					var synthKey = (name ++ channelIndex).asSymbol;
+
+					if(Ndef(synthKey).isPlaying,{
+						Ndef(synthKey).set(\t_trig,1);
 					},{
-						"%% not playing".format(name,channelIndex).postln;
+						"% not playing".format(synthKey).postln;
 					}
 				)};
 
@@ -371,11 +403,13 @@
 
 				// set volume
 				~channels[channelIndex]["transforms"][rowIndex][colIndex][6] = {
-					if(Ndef((name ++ channelIndex).asSymbol).isPlaying,{
-						Ndef((name ++ channelIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
-						Ndef((name ++ channelIndex).asSymbol).xset(\amp,(~control[channelIndex]["volume"].sum) / 12);
+					var synthKey = (name ++ channelIndex).asSymbol;
+
+					if(Ndef(synthKey).isPlaying,{
+						Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
+						Ndef(synthKey).xset(\amp,(~control[channelIndex]["volume"].sum) / 12);
 					},{
-						"%% not playing".format(name,channelIndex).postln;
+						"% not playing".format(synthKey).postln;
 					}
 				)};
 
@@ -402,17 +436,19 @@
 		};
 
 		~channels[channelIndex]["recorders"][rowIndex][1] = {
-			if(Ndef((\inPlayer ++ channelIndex).asSymbol).isPlaying,{
+			var inKey = (inName ++ channelIndex).asSymbol;
+
+			if(Ndef(inKey).isPlaying,{
 				Synth(\recorder,[
 					\inBus,~players[channelIndex][\sendBus],
 					\bufnum,~buffers[channelIndex][rowIndex]
 				],
-				Ndef((\inPlayer ++ channelIndex).asSymbol).nodeID,
+				Ndef(inKey).nodeID,
 				\addAfter
 				);
 				"buf% % recording".format(channelIndex,rowIndex).postln;
 			},{
-				"is %% playing?".format(inName,channelIndex).postln;
+				"is % playing?".format(inKey).postln;
 			}
 		)};
 
@@ -435,11 +471,13 @@
 
 				// turn transform off
 				~channels[channelIndex]["bufTransforms"][rowIndex][colIndex][0] = {
-					if(Ndef((name ++ channelIndex ++ rowIndex).asSymbol).isPlaying,{
-						Ndef((name ++ channelIndex ++ rowIndex).asSymbol).end(fadeTime: ~control[channelIndex]["fadeTime"]);
-						"%% % off".format(name,channelIndex,rowIndex).postln;
+					var synthKey = (name ++ channelIndex ++ rowIndex).asSymbol;
+
+					if(Ndef(synthKey).isPlaying,{
+						Ndef(synthKey).end(fadeTime: ~control[channelIndex]["fadeTime"]);
+						"% off".format(synthKey).postln;
 					},{
-						"%% % not playing".format(name,channelIndex,rowIndex).postln;
+						"% not playing".format(synthKey).postln;
 					}
 				)};
 
@@ -447,13 +485,15 @@
 
 				// first level arguments
 				~channels[channelIndex]["bufTransforms"][rowIndex][colIndex][1] = {
-					if(Ndef((name ++ channelIndex ++ rowIndex).asSymbol).isPlaying.not,{
-						Ndef((name ++ channelIndex ++ rowIndex).asSymbol,func).play(
+					var synthKey = (name ++ channelIndex ++ rowIndex).asSymbol;
+
+					if(Ndef(synthKey).isPlaying.not,{
+						Ndef(synthKey,func).play(
 							out: ~players[channelIndex][\outBus],
 							group: ~transformsGroup,
 							fadeTime: ~control[channelIndex]["fadeTime"]
 						);
-						Ndef((name ++ channelIndex ++ rowIndex).asSymbol).set(
+						Ndef(synthKey).set(
 							\inBus,~players[channelIndex][\sendBus],
 							\bufnum,~buffers[channelIndex][rowIndex],
 							args[0],vals[0][0],
@@ -461,10 +501,10 @@
 							\t_trig,0,
 							\amp,(~control[channelIndex]["volume"].sum) / 12
 						);
-						"%% % on - lvl 1".format(name,channelIndex,rowIndex).postln;
+						"% on - lvl 1".format(synthKey).postln;
 					},{
-						Ndef((name ++ channelIndex ++ rowIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
-						Ndef((name ++ channelIndex ++ rowIndex).asSymbol).xset(
+						Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
+						Ndef(synthKey).xset(
 							\inBus,~players[channelIndex][\sendBus],
 							args[0],vals[0][0],
 							args[1],vals[1][0],
@@ -477,13 +517,15 @@
 
 				// second level arguments
 				~channels[channelIndex]["bufTransforms"][rowIndex][colIndex][2] = {
-					if(Ndef((name ++ channelIndex ++ rowIndex).asSymbol).isPlaying.not,{
-						Ndef((name ++ channelIndex ++ rowIndex).asSymbol,func).play(
+					var synthKey = (name ++ channelIndex ++ rowIndex).asSymbol;
+
+					if(Ndef(synthKey).isPlaying.not,{
+						Ndef(synthKey,func).play(
 							out: ~players[channelIndex][\outBus],
 							group: ~transformsGroup,
 							fadeTime: ~control[channelIndex]["fadeTime"]
 						);
-						Ndef((name ++ channelIndex ++ rowIndex).asSymbol).set(
+						Ndef(synthKey).set(
 							\inBus,~players[channelIndex][\sendBus],
 							\bufnum,~buffers[channelIndex][rowIndex],
 							args[0],vals[0][1],
@@ -491,10 +533,10 @@
 							\t_trig,0,
 							\amp,(~control[channelIndex]["volume"].sum) / 12
 						);
-						"%% % on - lvl 2".format(name,channelIndex,rowIndex).postln;
+						"% on - lvl 2".format(synthKey).postln;
 					},{
-						Ndef((name ++ channelIndex ++ rowIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
-						Ndef((name ++ channelIndex ++ rowIndex).asSymbol).xset(
+						Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
+						Ndef(synthKey).xset(
 							\inBus,~players[channelIndex][\sendBus],
 							args[0],vals[0][1],
 							args[1],vals[1][1],
@@ -508,13 +550,15 @@
 
 				// third level arguments
 				~channels[channelIndex]["bufTransforms"][rowIndex][colIndex][3] = {
-					if(Ndef((name ++ channelIndex ++ rowIndex).asSymbol).isPlaying.not,{
-						Ndef((name ++ channelIndex ++ rowIndex).asSymbol,func).play(
+					var synthKey = (name ++ channelIndex ++ rowIndex).asSymbol;
+
+					if(Ndef(synthKey).isPlaying.not,{
+						Ndef(synthKey,func).play(
 							out: ~players[channelIndex][\outBus],
 							group: ~transformsGroup,
 							fadeTime: ~control[channelIndex]["fadeTime"]
 						);
-						Ndef((name ++ channelIndex ++ rowIndex).asSymbol).set(
+						Ndef(synthKey).set(
 							\inBus,~players[channelIndex][\sendBus],
 							\bufnum,~buffers[channelIndex][rowIndex],
 							args[0],vals[0][2],
@@ -522,10 +566,10 @@
 							\t_trig,0,
 							\amp,(~control[channelIndex]["volume"].sum) / 12
 						);
-						"%% % on - lvl 3".format(name,channelIndex,rowIndex).postln;
+						"% on - lvl 3".format(synthKey).postln;
 					},{
-						Ndef((name ++ channelIndex ++ rowIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
-						Ndef((name ++ channelIndex ++ rowIndex).asSymbol).xset(
+						Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
+						Ndef(synthKey).xset(
 							\inBus,~players[channelIndex][\sendBus],
 							args[0],vals[0][2],
 							args[1],vals[1][2],
@@ -538,15 +582,17 @@
 
 				// mod arguments
 				~channels[channelIndex]["bufTransforms"][rowIndex][colIndex][4] = {
-					if(Ndef((name ++ channelIndex ++ rowIndex).asSymbol).isPlaying,{
-						Ndef((name ++ channelIndex ++ rowIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
-						Ndef((name ++ channelIndex ++ rowIndex).asSymbol).xset(
+					var synthKey = (name ++ channelIndex ++ rowIndex).asSymbol;
+
+					if(Ndef(synthKey).isPlaying,{
+						Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
+						Ndef(synthKey).xset(
 							args[0],modFunc.(~control[channelIndex]["dustTrig"]),
 							args[1],modFunc.(~control[channelIndex]["impulseTrig"]),
 							\t_trig,0
 						)
 					},{
-						"%% % not playing".format(name,channelIndex,rowIndex).postln;
+						"% not playing".format(synthKey).postln;
 					}
 				)};
 
@@ -554,10 +600,12 @@
 
 				// t_trig
 				~channels[channelIndex]["bufTransforms"][rowIndex][colIndex][5] = {
-					if(Ndef((name ++ channelIndex ++ rowIndex).asSymbol).isPlaying,{
-						Ndef((name ++ channelIndex ++ rowIndex).asSymbol).set(\t_trig,1);
+					var synthKey = (name ++ channelIndex ++ rowIndex).asSymbol;
+
+					if(Ndef(synthKey).isPlaying,{
+						Ndef(synthKey).set(\t_trig,1);
 					},{
-						"%% % not playing".format(name,channelIndex,rowIndex).postln;
+						"% not playing".format(synthKey).postln;
 					}
 				)};
 
@@ -565,11 +613,13 @@
 
 				// set volume
 				~channels[channelIndex]["bufTransforms"][rowIndex][colIndex][6] = {
-					if(Ndef((name ++ channelIndex ++ rowIndex).asSymbol).isPlaying,{
-						Ndef((name ++ channelIndex ++ rowIndex).asSymbol).fadeTime = ~control[channelIndex]["fadeTime"];
-						Ndef((name ++ channelIndex ++ rowIndex).asSymbol).xset(\amp,(~control[channelIndex]["volume"].sum) / 12);
+					var synthKey = (name ++ channelIndex ++ rowIndex).asSymbol;
+
+					if(Ndef(synthKey).isPlaying,{
+						Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
+						Ndef(synthKey).xset(\amp,(~control[channelIndex]["volume"].sum) / 12);
 					},{
-						"%% % not playing".format(name,channelIndex,rowIndex).postln;
+						"% not playing".format(synthKey).postln;
 					}
 				)}
 			},{
