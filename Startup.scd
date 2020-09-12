@@ -1,15 +1,16 @@
 ///////////////////////////////////////////////////////MONOME Startup//////////////////////////////////////////////////////////////////////
 
 (
+var server = Server.default;
 Ndef.all.clear;
 OSCdef.freeAll;
-s.freeAll;
+server.freeAll;
 
-s.waitForBoot({
+server.waitForBoot({
 
 	"Players.scd".loadRelative;
 
-	s.sync;
+	server.sync;
 
 	PathName((PathName(thisProcess.nowExecutingPath).parentPath +/+ "Program Files/")).entries.do({
 		arg entry, index;

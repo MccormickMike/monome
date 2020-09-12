@@ -87,8 +87,8 @@
 			"mute% on".format(channelIndex).postln
 		},{
 			"% not playing".format(synthKey).postln
-		}
-	)};
+		})
+	};
 
 	/**********************************************************************/
 
@@ -101,8 +101,8 @@
 			Ndef(synthKey).xset(\amp,(~control[channelIndex]["volume"].sum) / 12)
 		},{
 			"% not playing".format(synthKey).postln
-		}
-	)};
+		})
+	};
 
 	/*--------------------------------------------------------------------*/
 	/****************************outPlayer*********************************/
@@ -140,8 +140,8 @@
 		},{
 			Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
 			Ndef(synthKey).xset(\inBus,~players[channelIndex][\outBus],\mix,0.001)
-		}
-	)};
+		})
+	};
 
 	/**********************************************************************/
 
@@ -165,8 +165,8 @@
 		},{
 			Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
 			Ndef(synthKey).xset(\inBus,~players[channelIndex][\outBus],\mix,0.05)
-		}
-	)};
+		})
+	};
 
 	/**********************************************************************/
 
@@ -190,8 +190,8 @@
 		},{
 			Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
 			Ndef(synthKey).xset(\inBus,~players[channelIndex][\outBus],\mix,0.1)
-		}
-	)};
+		})
+	};
 
 	/**********************************************************************/
 
@@ -216,8 +216,8 @@
 			Ndef(synthKey).xset(\amp,(~control[channelIndex]["volume"].sum) / 12)
 		},{
 			"% not playing".format(synthKey).postln
-		}
-	)};
+		})
+	};
 
 	/*--------------------------------------------------------------------*/
 	/*****************************analyser*********************************/
@@ -241,7 +241,7 @@
 	~channels[channelIndex]["io"][2][3] = {}; // level 3 - fast impulse arg?
 	~channels[channelIndex]["io"][2][4] = {}; // mod - change impulse arg?
 	~channels[channelIndex]["io"][2][5] = {}; // t_trig = ????
-	~channels[channelIndex]["io"][2][6] = {}; //
+	~channels[channelIndex]["io"][2][6] = {}; // volume...??? or impulse speed / trigFreq
 
 	3.do({
 		arg rowIndex;
@@ -271,8 +271,8 @@
 						"% off".format(synthKey).postln;
 					},{
 						"% not playing".format(synthKey).postln;
-					}
-				)};
+					})
+				};
 
 				/**********************************************************************/
 
@@ -302,8 +302,8 @@
 							args[1],vals[1][0],
 							\t_trig,0
 						)
-					}
-				)};
+					})
+				};
 
 				/**********************************************************************/
 
@@ -333,8 +333,8 @@
 							args[1],vals[1][1],
 							\t_trig,0
 						)
-					}
-				)};
+					})
+				};
 
 				/**********************************************************************/
 
@@ -365,8 +365,8 @@
 							args[1],vals[1][2],
 							\t_trig,0
 						)
-					}
-				)};
+					})
+				};
 
 				/**********************************************************************/
 
@@ -383,8 +383,8 @@
 						)
 					},{
 						"% not playing".format(synthKey).postln;
-					}
-				)};
+					})
+				};
 
 				/**********************************************************************/
 
@@ -396,8 +396,8 @@
 						Ndef(synthKey).set(\t_trig,1);
 					},{
 						"% not playing".format(synthKey).postln;
-					}
-				)};
+					})
+				};
 
 				/**********************************************************************/
 
@@ -410,8 +410,8 @@
 						Ndef(synthKey).xset(\amp,(~control[channelIndex]["volume"].sum) / 12);
 					},{
 						"% not playing".format(synthKey).postln;
-					}
-				)};
+					})
+				};
 
 			},{
 
@@ -431,7 +431,7 @@
 
 		~channels[channelIndex]["recorders"][rowIndex][0] = {
 			~buffers[channelIndex][rowIndex].free;                                                              // explore buffer.zero...
-			~buffers[channelIndex][rowIndex] = Buffer.alloc(s, s.sampleRate * 12, 1);
+			~buffers[channelIndex][rowIndex] = Buffer.alloc(s, s.sampleRate * 12, 1);                          // avoid using s!! is it used elsewhere in this file?
 			"buf% % freed".format(channelIndex,rowIndex).postln;
 		};
 
@@ -449,8 +449,8 @@
 				"buf% % recording".format(channelIndex,rowIndex).postln;
 			},{
 				"is % playing?".format(inKey).postln;
-			}
-		)};
+			})
+		};
 
 		/*--------------------------------------------------------------------*/
 		/***************************bufTransforms******************************/
@@ -478,8 +478,8 @@
 						"% off".format(synthKey).postln;
 					},{
 						"% not playing".format(synthKey).postln;
-					}
-				)};
+					})
+				};
 
 				/**********************************************************************/
 
@@ -510,8 +510,8 @@
 							args[1],vals[1][0],
 							\t_trig,0
 						)
-					}
-				)};
+					})
+				};
 
 				/**********************************************************************/
 
@@ -542,8 +542,8 @@
 							args[1],vals[1][1],
 							\t_trig,0
 						)
-					}
-				)};
+					})
+				};
 
 				/**********************************************************************/
 				// consider changing this function to incorporate the \analyser inputs...could be randomized?!?!?
@@ -575,8 +575,8 @@
 							args[1],vals[1][2],
 							\t_trig,0
 						)
-					}
-				)};
+					})
+				};
 
 				/**********************************************************************/
 
@@ -593,8 +593,8 @@
 						)
 					},{
 						"% not playing".format(synthKey).postln;
-					}
-				)};
+					})
+				};
 
 				/**********************************************************************/
 
@@ -606,8 +606,8 @@
 						Ndef(synthKey).set(\t_trig,1);
 					},{
 						"% not playing".format(synthKey).postln;
-					}
-				)};
+					})
+				};
 
 				/**********************************************************************/
 
@@ -620,8 +620,8 @@
 						Ndef(synthKey).xset(\amp,(~control[channelIndex]["volume"].sum) / 12);
 					},{
 						"% not playing".format(synthKey).postln;
-					}
-				)}
+					})
+				}
 			},{
 
 				// empty slots

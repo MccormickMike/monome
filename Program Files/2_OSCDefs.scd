@@ -133,9 +133,9 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 						~control[channelIndex]["buffer"][channelRowIndex] = 1;
 						{
 							12.do({
-								~monome.levset(col,row,0);
-								0.5.wait;
 								~monome.levset(col,row,12);
+								0.5.wait;
+								~monome.levset(col,row,0);
 								0.5.wait
 							})
 						}.fork
