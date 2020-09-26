@@ -26,8 +26,7 @@ SynthDef(\recorder,{
 			sig = BLowShelf.ar(sig,filtFreqLo.linlin(0.0,1.0,20,20000),rsLo,0);
 			sig = Compander.ar(sig,sig,compThresh,1,0.5,0.01,0.01);
 			Out.ar(sendBus,sig);
-			sig = Pan2.ar(sig,pan,amp);
-			sig = sig * mute;
+			sig = Pan2.ar(sig * mute,pan,amp);
 		},
 
 		"inPlayerPair" -> {
@@ -41,8 +40,7 @@ SynthDef(\recorder,{
 			sig = BLowShelf.ar(sig,filtFreqLo.linlin(0.0,1.0,20,20000),rsLo,0);
 			sig = Compander.ar(sig,sig,compThresh,1,0.5,0.01,0.01);
 			Out.ar(sendBus,sig);
-			sig = Pan2.ar(sig,pan,amp); // consider rewriting this and using Balance2.ar instead...
-			sig = sig * mute;
+			sig = Pan2.ar(sig * mute,pan,amp); // consider rewriting this and using Balance2.ar instead...
 		},
 
 		"outPlayer" -> {

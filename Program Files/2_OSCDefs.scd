@@ -28,7 +28,7 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 					/*--------------------------------------------------------------------*/
 
 					case
-					{~control[channelIndex]["keysHeld"][0..1] == [0,0]}{
+					{~control[channelIndex]["keysHeld"][..1] == [0,0]}{
 
 						case
 						{~control[channelIndex]["levels"].sum == 0}{"Choose level!".warn}
@@ -38,7 +38,7 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 						{intensity == 3}{~channels[channelIndex]["io"][channelRowIndex][3].value};
 					}
 					{~control[channelIndex]["keysHeld"] == [0,1,0]}{~channels[channelIndex]["io"][channelRowIndex][4].value} // mod
-					{~control[channelIndex]["keysHeld"] == [0,1,1]}{~channels[channelIndex]["io"][channelRowIndex][5].value} // t_trig
+					{~control[channelIndex]["keysHeld"] == [1,1,0]}{~channels[channelIndex]["io"][channelRowIndex][5].value} // t_trig
 					{~control[channelIndex]["keysHeld"] == [0,1,1]}{~channels[channelIndex]["io"][channelRowIndex][6].value}; // volume
 
 					~monome.levset(col,row,intensity * 4);
@@ -51,7 +51,7 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 					/*--------------------------------------------------------------------*/
 
 					case
-					{~control[channelIndex]["keysHeld"][0..1] == [0,0]}{
+					{~control[channelIndex]["keysHeld"][..1] == [0,0]}{
 
 						case
 						{~control[channelIndex]["levels"].sum == 0}{"Choose level!".warn}
@@ -62,7 +62,7 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 
 					}
 					{~control[channelIndex]["keysHeld"] == [0,1,0]}{~channels[channelIndex]["io"][channelRowIndex][4].value} // mod
-					{~control[channelIndex]["keysHeld"] == [0,1,1]}{~channels[channelIndex]["io"][channelRowIndex][5].value} // t_trig
+					{~control[channelIndex]["keysHeld"] == [1,1,0]}{~channels[channelIndex]["io"][channelRowIndex][5].value} // t_trig
 					{~control[channelIndex]["keysHeld"] == [0,1,1]}{~channels[channelIndex]["io"][channelRowIndex][6].value}; // volume
 
 					~monome.levset(col,row,intensity * 4);
@@ -137,7 +137,8 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 								0.5.wait;
 								~monome.levset(col,row,0);
 								0.5.wait
-							})
+							});
+							~monome.levset(col,row,12);
 						}.fork
 					});
 				};

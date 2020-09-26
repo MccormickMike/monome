@@ -24,7 +24,6 @@ server.waitForBoot({
 });
 )
 
-// consider using something instead of s for the Server? Could be smart to use an environment variable perhaps?
 // what do we do for multichannel outputs??? New synth file? Ndefs => elastic mode?
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

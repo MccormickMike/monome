@@ -78,12 +78,12 @@
 	/**********************************************************************/
 
 	// t_trig => output mute
-	~channels[channelIndex]["io"][1][5] = {
+	~channels[channelIndex]["io"][0][5] = {
 		var synthKey = (inName ++ channelIndex).asSymbol;
 
 		if(Ndef(synthKey).isPlaying,{
 			Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
-			Ndef(synthKey).xset(\t_trig,1);         // this trigger is .xset -- do I still want that??? Or is muting a sudden command?
+			Ndef(synthKey).set(\t_trig,1);         // this trigger is .xset -- do I still want that??? Or is muting a sudden command?
 			"mute% on".format(channelIndex).postln
 		},{
 			"% not playing".format(synthKey).postln
@@ -93,7 +93,7 @@
 	/**********************************************************************/
 
 	// inPlayer volume
-	~channels[channelIndex]["io"][1][6] = {
+	~channels[channelIndex]["io"][0][6] = {
 		var synthKey = (inName ++ channelIndex).asSymbol;
 
 		if(Ndef(synthKey).isPlaying,{
