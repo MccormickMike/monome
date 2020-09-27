@@ -2,11 +2,8 @@
 
 (
 SynthDef(\recorder,{
-	arg inBus,bufnum,recLevel=1.0, preLevel=0.0;
-	var sig;
-
-	sig = In.ar(inBus,1);
-	RecordBuf.ar(sig,bufnum,0,recLevel,preLevel,loop:0, doneAction: 2);
+	var sig = In.ar(\inBus.kr,1);
+	RecordBuf.ar(sig,\bufnum.kr,0,\recLevel.kr(1),\preLevel.kr(1),loop:0, doneAction: 2);
 
 }).add;
 
@@ -16,54 +13,50 @@ SynthDef(\recorder,{
 	"i/o synths" -> Dictionary[
 
 		"inPlayer" -> {
-			arg inBus,compThresh,filtFreqHi,rsHi,filtFreqLo,rsLo,amp,pan,sendBus,t_trig;
-			var sig,mute;
+			var filtFreqHi = \filtFreqHi.kr;
+			var filtFreqLo = \filtFreqLo.kr;
+			var mute = ToggleFF.kr(\trig.tr);
 
-			mute = ToggleFF.kr(t_trig);
-
-			sig = SoundIn.ar(inBus);
-			sig = BHiShelf.ar(sig,filtFreqHi.linlin(0.0,1.0,20,20000),rsHi,0);
-			sig = BLowShelf.ar(sig,filtFreqLo.linlin(0.0,1.0,20,20000),rsLo,0);
-			sig = Compander.ar(sig,sig,compThresh,1,0.5,0.01,0.01);
-			Out.ar(sendBus,sig);
-			sig = Pan2.ar(sig * mute,pan,amp);
+			var sig = SoundIn.ar(\inBus.kr);
+			sig = BHiShelf.ar(sig,filtFreqHi.linlin(0.0,1.0,20,20000),\rsHi.kr,0);
+			sig = BLowShelf.ar(sig,filtFreqLo.linlin(0.0,1.0,20,20000),\rsLo.kr,0);
+			sig = Compander.ar(sig,sig,\compThresh.kr,1,0.5,0.01,0.01);
+			Out.ar(\sendBus.kr,sig);
+			sig = Pan2.ar(sig * mute,\pan.kr,\amp.kr);
 		},
 
 		"inPlayerPair" -> {
-			arg inBus,compThresh,filtFreqHi,rsHi,filtFreqLo,rsLo,amp,pan,sendBus,t_trig;
-			var sig,mute;
+			var filtFreqHi = \filtFreqHi.kr;
+			var filtFreqLo = \filtFreqLo.kr;
+			var inBus = \inBus.kr;
+			var mute = ToggleFF.kr(\trig.tr);
 
-			mute = ToggleFF.kr(t_trig);
-
-			sig = Mix(SoundIn.ar([inBus,inBus+1]));
-			sig = BHiShelf.ar(sig,filtFreqHi.linlin(0.0,1.0,20,20000),rsHi,0);
-			sig = BLowShelf.ar(sig,filtFreqLo.linlin(0.0,1.0,20,20000),rsLo,0);
-			sig = Compander.ar(sig,sig,compThresh,1,0.5,0.01,0.01);
-			Out.ar(sendBus,sig);
-			sig = Pan2.ar(sig * mute,pan,amp); // consider rewriting this and using Balance2.ar instead...
+			var sig = Mix(SoundIn.ar([inBus,inBus+1]));
+			sig = BHiShelf.ar(sig,filtFreqHi.linlin(0.0,1.0,20,20000),\rsHi.kr,0);
+			sig = BLowShelf.ar(sig,filtFreqLo.linlin(0.0,1.0,20,20000),\rsLo.kr,0);
+			sig = Compander.ar(sig,sig,\compThresh.kr,1,0.5,0.01,0.01);
+			Out.ar(\sendBus.kr,sig);
+			sig = Pan2.ar(sig * mute,\pan.kr,\amp.kr);      // consider rewriting this and using Balance2.ar instead...
 		},
 
 		"outPlayer" -> {
-			arg inBus,compThresh=0.5,mix=0.1,room=100,damp=0.6,filtFreqHi=0.1,rsHi=0.25,dBHi=(-6),amp=1.0;
-			var sig;
-
-			sig = In.ar(inBus,2);
-			sig = Compander.ar(sig,sig,compThresh,1,0.5,0.01,0.01);
-			sig = FreeVerb.ar(sig,mix,room,damp,amp);
-			sig = BHiShelf.ar(sig,filtFreqHi.linlin(0.0,1.0,20,20000),rsHi,dBHi);
+			var sig = In.ar(\inBus.kr,2);
+			sig = Compander.ar(sig,sig,\compThresh.kr(0.5),1,0.5,0.01,0.01);
+			sig = FreeVerb.ar(sig,\mix.kr(0.1),\room.kr(100),\damp.kr(0.6),\amp.kr(1));    // get this shit out of here and put it somewhere else!
+			sig = BHiShelf.ar(sig,\filtFreqHi.kr(0.1).linlin(0.0,1.0,20,20000),\rsHi.kr(0.25),\dBHi.kr(-6));
 		},
 
 		"analyser" -> {
-			arg inBus,chan,frames=1024,thresh=0.2,trigFreq=4;
+			arg chan;   //what is this?? Besides me trying to be clever....
 
-			var sig = In.ar(inBus,1);
-			var trig = Impulse.kr(trigFreq);
-			var chain = FFT(LocalBuf(frames),sig);
+			var sig = In.ar(\inBus.kr,1);
+			var trig = Impulse.kr(\trigFreq.kr(4));
+			var chain = FFT(LocalBuf(\frames.kr(1024)),sig);
 			var specs,busVars;
 
 			var amp = Amplitude.kr(sig);
 			var silence = DetectSilence.ar(sig + Impulse.ar(0),0.01);
-			var onsets = Onsets.kr(chain,thresh, \rcomplex);
+			var onsets = Onsets.kr(chain,\thresh.kr(0.2), \rcomplex);
 			var centroid = SpecCentroid.kr(chain);
 			var specFlatness = SpecFlatness.kr(chain);
 
@@ -95,15 +88,16 @@ SynthDef(\recorder,{
 		[(
 			name: "ringMod",
 			func: {
-				arg inBus,dev,dummyArg,t_trig,amp=1.0;
-				var env,freq,hasFreq,mod,sig;
+				arg dummyArg;    // gotta fix this ASAP!!!
+				var freq,hasFreq;
 
-				sig = In.ar(inBus,1);
+				var sig = In.ar(\inBus.kr,1);
+				var trig = \trig.tr;
+
+				var dev = Select.kr(Trig.kr(trig,TRand.kr(0.1,1.0,trig)),[\dev.kr,TRand.kr(30,2000,trig)]); //make this more interesting!
 				#freq, hasFreq = Pitch.kr(sig, ampThreshold: 0.05, median: 7);
-				dev = Select.kr(Trig.kr(t_trig,TRand.kr(0.1,1.0,t_trig)),[dev,TRand.kr(30,2000,t_trig)]); //make this more interesting!
-				mod = SinOsc.ar(freq*2*SinOsc.ar(dev).range(0.75,1.25));
-				sig = sig*mod;
-				sig = Pan2.ar(sig,LFNoise2.kr(0.2,0.7),amp);
+				sig = sig * (SinOsc.ar(freq*2*SinOsc.ar(dev).range(0.75,1.25)));
+				sig = Pan2.ar(sig,LFNoise2.kr(0.2,0.7),\amp.kr(1));
 			},
 			args: [\dev,\dummyArg],
 			vals: [[0.01,40,400],[1,1,1]],
@@ -114,20 +108,18 @@ SynthDef(\recorder,{
 		[(
 			name: "fftFreeze",
 			func: {
-				arg inBus,dustTrig,impulseTrig,t_trig,amp=1.0;
-				var chain,trig,env,sig;
-				var frames=4096;
+				var frames = \frames.kr(4096);
 
-				dustTrig = dustTrig.lincurve(0.0,1.0,0.0,3.0);
-				impulseTrig = impulseTrig.lincurve(0.0,1.0,0.0,3.0);
+				var dustTrig = \dustTrig.kr().lincurve(0.0,1.0,0.0,3.0);
+				var impulseTrig = \impulseTrig.kr().lincurve(0.0,1.0,0.0,3.0);
 
-				sig = In.ar(inBus,1);
-				trig = Dust.kr(dustTrig) + Impulse.kr(impulseTrig) + t_trig;
+				var sig = In.ar(\inBus.kr,1);
+				var chain = FFT(LocalBuf(frames), sig, 0.5, 0, 1, frames);
+				var trig = Dust.kr(dustTrig) + Impulse.kr(impulseTrig) + \trig.tr;
 				trig = Trig.kr(trig,TExpRand.kr(0.1,0.3,trig));
-				chain = FFT(LocalBuf(frames), sig, 0.5, 0, 1, frames);
 				chain = PV_Freeze(chain,trig);
 				sig = IFFT(chain);
-				sig = Pan2.ar(sig*trig,TRand.kr(-1.0,1.0,trig),amp);
+				sig = Pan2.ar(sig * trig,TRand.kr(-1.0,1.0,trig),\amp.kr(1));
 			},
 			args: [\dustTrig,\impulseTrig],
 			vals: [[0.0,1.0,0.0],[0.0,0.0,1.0]],
@@ -138,20 +130,19 @@ SynthDef(\recorder,{
 		[(
 			name: "brokenRecord",
 			func: {
-				arg inBus,t_trig,dustTrig,impulseTrig,amp=0.8;
-				var gate,rand,sig,sig1,trig;
+				var sig1;
 
-				dustTrig = dustTrig.lincurve(0.0,1.0,0.0,3.0);
-				impulseTrig = impulseTrig.lincurve(0.0,1.0,0.0,3.0);
+				var dustTrig = \dustTrig.kr().lincurve(0.0,1.0,0.0,3.0);
+				var impulseTrig = \impulseTrig.kr().lincurve(0.0,1.0,0.0,3.0);
 
-				sig = In.ar(inBus,1);
-				trig = Dust.kr(dustTrig) + Impulse.kr(impulseTrig) + t_trig;
-				gate = EnvGen.ar(Env.sine(0.1),trig);
-				rand = TExpRand.kr(0.05,0.3,trig);
+				var sig = In.ar(\inBus.kr,1);
+				var trig = Dust.kr(dustTrig) + Impulse.kr(impulseTrig) + \trig.tr;
+				var gate = EnvGen.ar(Env.sine(0.1),trig);
+				var rand = TExpRand.kr(0.05,0.3,trig);
 				sig = CombC.ar(sig*gate,0.6,rand,Select.kr(Trig1.kr(trig,rand-0.01),[inf,0]));
 				sig1 = DelayN.ar(sig,0.6,rand*7/5);
 				sig = Pan2.ar(sig,LFNoise2.kr(0.2)) + Pan2.ar(sig1,LFNoise2.kr(0.2));
-				sig*amp;
+				sig * \amp.kr(0.8);
 			},
 			args: [\dustTrig,\impulseTrig],
 			vals: [[0.0,1.0,0.0],[0.0,0.0,1.0]],
@@ -162,22 +153,21 @@ SynthDef(\recorder,{
 		[(
 			name: "percShiftDelay",
 			func: {
-				arg inBus,freqDev,maxDev,t_trig,amp=1.0;
-				var grainSize=1.0,mute,trig,freq,hasFreq,sig;
+				var trig,freq,hasFreq;
 
-				freqDev = freqDev.linexp(0.0,1.0,0.5,4.0);
-				maxDev = maxDev.lincurve(0.0,1.0,0.0,3.0);
+				var freqDev = \freqDev.kr().linexp(0.0,1.0,0.5,4.0);
+				var maxDev = \maxDev.kr().lincurve(0.0,1.0,0.0,3.0);
 
-				sig = In.ar(inBus,1);
-				mute = ToggleFF.kr(t_trig);
+				var sig = In.ar(\inBus.kr,1);
+				var mute = ToggleFF.kr(\trig.tr);
 				sig = sig*(1-mute) + LocalIn.ar(1);
 				#freq, hasFreq = Pitch.kr(sig, ampThreshold: 0.05, median: 7);
 				trig = 1-hasFreq;
 				sig = sig*trig;
-				sig = PitchShift.ar(sig,grainSize,freqDev,maxDev,grainSize);
+				sig = PitchShift.ar(sig,1.0,freqDev,maxDev,1.0);
 				sig = LeakDC.ar(sig);
 				LocalOut.ar(sig*(Select.kr(mute,[0.75,1])));
-				sig = Pan2.ar(sig,TRand.kr(-1.0,1.0,trig).lag(maxDev),amp);
+				sig = Pan2.ar(sig,TRand.kr(-1.0,1.0,trig).lag(maxDev),\amp.kr(1));
 			},
 			args: [\freqDev,\maxDev],
 			vals: [[0.0,0.5,1.0],[0.0,0.5,1.0]],
@@ -188,19 +178,16 @@ SynthDef(\recorder,{
 		[(
 			name: "shiftDelay",
 			func: {
-				arg inBus,speed,delay,amp=1,t_trig;
-				var local,mute,sig;
+				var speed = \speed.kr().linexp(0.0,1.0,0.05,7);
+				var delay = \delay.kr().linexp(0.0,1.0,0.3,1.5);
 
-				speed = speed.linexp(0.0,1.0,0.05,7);
-				delay = delay.linexp(0.0,1.0,0.3,1.5);
-
-				sig = In.ar(inBus,1);
-				mute = ToggleFF.kr(t_trig);
-				local = LocalIn.ar(2);
+				var sig = In.ar(\inBus.kr,1);
+				var mute = ToggleFF.kr(\trig.tr);
+				var local = LocalIn.ar(2);
 				sig = DelayC.ar((sig*(1-mute))+local,1.5,LFNoise1.ar(speed!2).range(0.2,delay));
 				LocalOut.ar((sig.reverse)*Select.kr(mute,[0.75,1]));
 				sig = LeakDC.ar(sig);
-				sig = Splay.ar(sig,0.5,amp);
+				sig = Splay.ar(sig,0.5,\amp.kr(1));
 			},
 			args: [\speed,\delay],
 			vals: [[0.0,0.5,1.0],[0.0,0.5,1.0]],
@@ -240,24 +227,20 @@ SynthDef(\recorder,{
 		[(
 			name: "tGrainz",
 			func: {
-				arg bufnum,rate,impulseTrig,t_trig,amp=1.0;
-				var sig,trig,noise,grainDur=1.0,toggle,pointer,bufDur;
+				var bufnum = \bufnum.kr;
+				var impulseTrig = \impulseTrig.kr;
+				var noise = impulseTrig.linexp(0.0,1.0,0.1,0.001);
+				var rate = \rate.kr().linexp(0.0,1.0,0.5,2.0);
 
-				noise = impulseTrig.linexp(0.0,1.0,0.1,0.001);
-				rate = rate.linexp(0.0,1.0,0.5,2.0);
+				var trig = Impulse.kr(impulseTrig.linexp(0.0,1.0,0.1,12.0)) + \trig.tr;
+				var bufDur = BufDur.kr(bufnum);
 
-				trig = Impulse.kr(impulseTrig.linexp(0.0,1.0,0.3,12.0));
-				bufDur = BufDur.kr(bufnum);
+				var pointer = Rand(0.0,1.0) + LFNoise1.kr(12,noise);
 
-				pointer = Rand(0.0,1.0);
-				pointer = pointer + LFNoise1.kr(12,noise);
-				toggle = ToggleFF.kr(t_trig);
-				toggle = Select.kr(toggle,[-1,1]);
-
-				sig = TGrains.ar(2,trig,bufnum,BufRateScale.kr(bufnum) * rate * toggle,pointer * bufDur,grainDur,Latch.kr(LFNoise2.kr(0.1),trig),amp);
+				var sig = TGrains.ar(2,trig,bufnum,BufRateScale.kr(bufnum) * rate,pointer * bufDur,1.0,Latch.kr(LFNoise2.kr(0.1),trig),\amp.kr(1));
 			},
 			args: [\rate,\impulseTrig],
-			vals: [[0.4,0.4,0.4],[1.0,0.1,0.4]],
+			vals: [[0.4,0.4,0.4],[1.0,0.0,0.4]],
 		)]
 
 		++
@@ -265,20 +248,18 @@ SynthDef(\recorder,{
 		[(
 			name: "bufGlitch",
 			func: {
-				arg bufnum,slowTrig,fastTrig,t_trig=0,amp=1.0;
-				var freq,freq2,trig,bufFr,pointer,pointer2,sig;
+				var bufnum = \bufnum.kr;
 
-				freq = slowTrig.linexp(0.0,1.0,0.25,2.5);
-				freq2 = fastTrig.linexp(0.0,1.0,5,15);
+				var freq = \slowTrig.kr().linexp(0.0,1.0,0.25,2.5);
+				var freq2 = \fastTrig.kr().linexp(0.0,1.0,5,15);
 
-				trig = ToggleFF.kr(t_trig);
-				bufFr = BufFrames.kr(bufnum);
-				pointer = Select.kr(trig,[freq,freq2]);
-				pointer = LFNoise1.ar(pointer).range(0,bufFr);
+				var trig = ToggleFF.kr(\trig.tr);
+				var bufFr = BufFrames.kr(bufnum);
+				var pointer = LFNoise1.ar(Select.kr(trig,[freq,freq2])).range(0,bufFr);
 
-				sig = BufRd.ar(1,bufnum,pointer,1);
+				var	sig = BufRd.ar(1,bufnum,pointer,1);
 				sig = BHiShelf.ar(sig,3500,1,-6);
-				sig = Pan2.ar(sig,pointer.linlin(0,bufFr,-1.0,1.0),amp)
+				sig = Pan2.ar(sig,pointer.linlin(0,bufFr,-1.0,1.0),\amp.kr(1))
 			},
 			args: [\slowTrig,\fastTrig],
 			vals: [[0.0,0.5,1.0],[0.0,0.5,1.0]],

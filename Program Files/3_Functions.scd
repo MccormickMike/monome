@@ -1,10 +1,8 @@
 ///////////////////////////////////////////////////////MONOME Functions//////////////////////////////////////////////////////////////////////
 (
-4.do({
-	arg channelIndex;
+4.do({ |channelIndex|
 	var inName;
-	var modFunc = {
-		arg trigRate;
+	var modFunc = {|trigRate|
 		case
 		{~control[channelIndex]["sqrt"] == ~control[channelIndex]["squared"]}{trigRate}
 		{~control[channelIndex]["sqrt"]}{trigRate.sqrt}
@@ -25,7 +23,7 @@
 	if(~players[channelIndex][\inBus].size == 1,{inName = "inPlayer"},{inName = "inPlayerPair"});
 
 	/*--------------------------------------------------------------------*/
-	/*****************************inPlayer*********************************/
+	/*                            inPlayer                                */
 	/*--------------------------------------------------------------------*/
 
 	// turn inPlayer off
@@ -83,7 +81,7 @@
 
 		if(Ndef(synthKey).isPlaying,{
 			Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
-			Ndef(synthKey).set(\t_trig,1);         // this trigger is .xset -- do I still want that??? Or is muting a sudden command?
+			Ndef(synthKey).set(\trig,1);         // this trigger is .xset -- do I still want that??? Or is muting a sudden command?
 			"mute% on".format(channelIndex).postln
 		},{
 			"% not playing".format(synthKey).postln
@@ -105,7 +103,7 @@
 	};
 
 	/*--------------------------------------------------------------------*/
-	/****************************outPlayer*********************************/
+	/*                           outPlayer                                */
 	/*--------------------------------------------------------------------*/
 
 	// turn outPlayer off
@@ -220,7 +218,7 @@
 	};
 
 	/*--------------------------------------------------------------------*/
-	/*****************************analyser*********************************/
+	/*                            analyser                                */
 	/*--------------------------------------------------------------------*/
 
 	// turn analyser off
@@ -243,15 +241,13 @@
 	~channels[channelIndex]["io"][2][5] = {}; // t_trig = ????
 	~channels[channelIndex]["io"][2][6] = {}; // volume...??? or impulse speed / trigFreq
 
-	3.do({
-		arg rowIndex;
+	3.do({ |rowIndex|
 
 		/*--------------------------------------------------------------------*/
-		/****************************transforms********************************/
+		/*                           transforms                               */
 		/*--------------------------------------------------------------------*/
 
-		10.do({
-			arg colIndex;
+		10.do({ |colIndex|
 
 			if(~synths["transforms"][rowIndex][colIndex].notNil,{
 
@@ -290,7 +286,7 @@
 							\inBus,~players[channelIndex][\sendBus],
 							args[0],vals[0][0],
 							args[1],vals[1][0],
-							\t_trig,0,
+							\trig,0,
 							\amp,(~control[channelIndex]["volume"].sum) / 12
 						);
 						"% on - lvl 1".format(synthKey).postln;
@@ -300,7 +296,7 @@
 							\inBus,~players[channelIndex][\sendBus],
 							args[0],vals[0][0],
 							args[1],vals[1][0],
-							\t_trig,0
+							\trig,0
 						)
 					})
 				};
@@ -321,7 +317,7 @@
 							\inBus,~players[channelIndex][\sendBus],
 							args[0],vals[0][1],
 							args[1],vals[1][1],
-							\t_trig,0,
+							\trig,0,
 							\amp,(~control[channelIndex]["volume"].sum) / 12
 						);
 						"% on - lvl 2".format(synthKey).postln
@@ -331,7 +327,7 @@
 							\inBus,~players[channelIndex][\sendBus],
 							args[0],vals[0][1],
 							args[1],vals[1][1],
-							\t_trig,0
+							\trig,0
 						)
 					})
 				};
@@ -353,7 +349,7 @@
 							\inBus,~players[channelIndex][\sendBus],
 							args[0],vals[0][2],
 							args[1],vals[1][2],
-							\t_trig,0,
+							\trig,0,
 							\amp,(~control[channelIndex]["volume"].sum) / 12
 						);
 						"% on - lvl 3".format(synthKey).postln;
@@ -363,7 +359,7 @@
 							\inBus,~players[channelIndex][\sendBus],
 							args[0],vals[0][2],
 							args[1],vals[1][2],
-							\t_trig,0
+							\trig,0
 						)
 					})
 				};
@@ -379,7 +375,7 @@
 						Ndef(synthKey).xset(
 							args[0],modFunc.(~control[channelIndex]["dustTrig"]),
 							args[1],modFunc.(~control[channelIndex]["impulseTrig"]),
-							\t_trig,0
+							\trig,0
 						)
 					},{
 						"% not playing".format(synthKey).postln;
@@ -393,7 +389,7 @@
 					var synthKey = (name ++ channelIndex).asSymbol;
 
 					if(Ndef(synthKey).isPlaying,{
-						Ndef(synthKey).set(\t_trig,1);
+						Ndef(synthKey).set(\trig,1);
 					},{
 						"% not playing".format(synthKey).postln;
 					})
@@ -416,8 +412,7 @@
 			},{
 
 				// empty slots
-				7.do({
-					arg levelIndex;
+				7.do({ |levelIndex|
 
 					~channels[channelIndex]["transforms"][rowIndex][colIndex][levelIndex] = {"chan: % row: % col: % not assigned".format(channelIndex,rowIndex, colIndex).postln}
 
@@ -426,7 +421,7 @@
 		});
 
 		/*--------------------------------------------------------------------*/
-		/*****************************recorders********************************/
+		/*                            recorders                               */
 		/*--------------------------------------------------------------------*/
 
 		~channels[channelIndex]["recorders"][rowIndex][0] = {
@@ -453,11 +448,10 @@
 		};
 
 		/*--------------------------------------------------------------------*/
-		/***************************bufTransforms******************************/
+		/*                          bufTransforms                             */
 		/*--------------------------------------------------------------------*/
 
-		4.do({
-			arg colIndex;
+		4.do({ |colIndex|
 
 			if(~synths["bufTransforms"][colIndex].notNil,{
 
@@ -498,7 +492,7 @@
 							\bufnum,~buffers[channelIndex][rowIndex],
 							args[0],vals[0][0],
 							args[1],vals[1][0],
-							\t_trig,0,
+							\trig,0,
 							\amp,(~control[channelIndex]["volume"].sum) / 12
 						);
 						"% on - lvl 1".format(synthKey).postln;
@@ -508,7 +502,7 @@
 							\inBus,~players[channelIndex][\sendBus],
 							args[0],vals[0][0],
 							args[1],vals[1][0],
-							\t_trig,0
+							\trig,0
 						)
 					})
 				};
@@ -530,7 +524,7 @@
 							\bufnum,~buffers[channelIndex][rowIndex],
 							args[0],vals[0][1],
 							args[1],vals[1][1],
-							\t_trig,0,
+							\trig,0,
 							\amp,(~control[channelIndex]["volume"].sum) / 12
 						);
 						"% on - lvl 2".format(synthKey).postln;
@@ -540,7 +534,7 @@
 							\inBus,~players[channelIndex][\sendBus],
 							args[0],vals[0][1],
 							args[1],vals[1][1],
-							\t_trig,0
+							\trig,0
 						)
 					})
 				};
@@ -563,7 +557,7 @@
 							\bufnum,~buffers[channelIndex][rowIndex],
 							args[0],vals[0][2],
 							args[1],vals[1][2],
-							\t_trig,0,
+							\trig,0,
 							\amp,(~control[channelIndex]["volume"].sum) / 12
 						);
 						"% on - lvl 3".format(synthKey).postln;
@@ -573,7 +567,7 @@
 							\inBus,~players[channelIndex][\sendBus],
 							args[0],vals[0][2],
 							args[1],vals[1][2],
-							\t_trig,0
+							\trig,0
 						)
 					})
 				};
@@ -589,7 +583,7 @@
 						Ndef(synthKey).xset(
 							args[0],modFunc.(~control[channelIndex]["dustTrig"]),
 							args[1],modFunc.(~control[channelIndex]["impulseTrig"]),
-							\t_trig,0
+							\trig,0
 						)
 					},{
 						"% not playing".format(synthKey).postln;
@@ -603,7 +597,7 @@
 					var synthKey = (name ++ channelIndex ++ rowIndex).asSymbol;
 
 					if(Ndef(synthKey).isPlaying,{
-						Ndef(synthKey).set(\t_trig,1);
+						Ndef(synthKey).set(\trig,1);
 					},{
 						"% not playing".format(synthKey).postln;
 					})
@@ -625,8 +619,7 @@
 			},{
 
 				// empty slots
-				7.do({
-					arg levelIndex;
+				7.do({ |levelIndex|
 
 					~channels[channelIndex]["bufTransforms"][rowIndex][colIndex][levelIndex] = {"chan: % row: % col: % not assigned".format(channelIndex,rowIndex, colIndex).postln}
 

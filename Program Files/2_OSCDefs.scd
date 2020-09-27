@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////MONOME OSCDefs//////////////////////////////////////////////////////////////////////
 
 (
-OSCdef(\mapper, {arg msg, time, addr, port;
+OSCdef(\mapper, { |msg, time, addr, port|
 	var col = msg[1];
 	var row = msg[2];
 	var value = msg[3];
@@ -24,11 +24,11 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 				{channelRowIndex == 0}{
 
 					/*--------------------------------------------------------------------*/
-					/*****************************inPlayer*********************************/
+					/*                            inPlayer                                */
 					/*--------------------------------------------------------------------*/
 
 					case
-					{~control[channelIndex]["keysHeld"][..1] == [0,0]}{
+					{~control[channelIndex]["keysHeld"] == [0,0,0]}{
 
 						case
 						{~control[channelIndex]["levels"].sum == 0}{"Choose level!".warn}
@@ -37,8 +37,8 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 						{intensity == 2}{~channels[channelIndex]["io"][channelRowIndex][2].value}
 						{intensity == 3}{~channels[channelIndex]["io"][channelRowIndex][3].value};
 					}
-					{~control[channelIndex]["keysHeld"] == [0,1,0]}{~channels[channelIndex]["io"][channelRowIndex][4].value} // mod
-					{~control[channelIndex]["keysHeld"] == [1,1,0]}{~channels[channelIndex]["io"][channelRowIndex][5].value} // t_trig
+					{~control[channelIndex]["keysHeld"] == [0,1,0]}{~channels[channelIndex]["io"][channelRowIndex][4].value}  // mod
+					{~control[channelIndex]["keysHeld"] == [1,1,0]}{~channels[channelIndex]["io"][channelRowIndex][5].value}  // t_trig
 					{~control[channelIndex]["keysHeld"] == [0,1,1]}{~channels[channelIndex]["io"][channelRowIndex][6].value}; // volume
 
 					~monome.levset(col,row,intensity * 4);
@@ -47,11 +47,11 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 				{channelRowIndex == 1}{
 
 					/*--------------------------------------------------------------------*/
-					/****************************outPlayer*********************************/
+					/*                           outPlayer                                */
 					/*--------------------------------------------------------------------*/
 
 					case
-					{~control[channelIndex]["keysHeld"][..1] == [0,0]}{
+					{~control[channelIndex]["keysHeld"] == [0,0,0]}{
 
 						case
 						{~control[channelIndex]["levels"].sum == 0}{"Choose level!".warn}
@@ -61,8 +61,8 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 						{intensity == 3}{~channels[channelIndex]["io"][channelRowIndex][3].value};
 
 					}
-					{~control[channelIndex]["keysHeld"] == [0,1,0]}{~channels[channelIndex]["io"][channelRowIndex][4].value} // mod
-					{~control[channelIndex]["keysHeld"] == [1,1,0]}{~channels[channelIndex]["io"][channelRowIndex][5].value} // t_trig
+					{~control[channelIndex]["keysHeld"] == [0,1,0]}{~channels[channelIndex]["io"][channelRowIndex][4].value}  // mod
+					{~control[channelIndex]["keysHeld"] == [1,1,0]}{~channels[channelIndex]["io"][channelRowIndex][5].value}  // t_trig
 					{~control[channelIndex]["keysHeld"] == [0,1,1]}{~channels[channelIndex]["io"][channelRowIndex][6].value}; // volume
 
 					~monome.levset(col,row,intensity * 4);
@@ -71,7 +71,7 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 				{channelRowIndex == 2}{
 
 					/*--------------------------------------------------------------------*/
-					/*****************************analyser*********************************/
+					/*                            analyser                                */
 					/*--------------------------------------------------------------------*/
 
 					"something something analysis module".postln;
@@ -82,7 +82,7 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 			}
 
 			/*--------------------------------------------------------------------*/
-			/****************************transforms********************************/
+			/*                           transforms                               */
 			/*--------------------------------------------------------------------*/
 
 			{col >= 1 and: {col <= 10}}{
@@ -90,7 +90,7 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 				channelColIndex = col - 1;
 
 				case
-				{~control[channelIndex]["keysHeld"][0..1] == [0,0]}{
+				{~control[channelIndex]["keysHeld"] == [0,0,0]}{
 
 					case
 					{~control[channelIndex]["levels"].sum == 0}{"Choose level!".warn}
@@ -99,15 +99,15 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 					{intensity == 2}{~channels[channelIndex]["transforms"][channelRowIndex][channelColIndex][2].value}
 					{intensity == 3}{~channels[channelIndex]["transforms"][channelRowIndex][channelColIndex][3].value};
 				}
-				{~control[channelIndex]["keysHeld"] == [0,1,0]}{~channels[channelIndex]["transforms"][channelRowIndex][channelColIndex][4].value} // mod
-				{~control[channelIndex]["keysHeld"] == [1,1,0]}{~channels[channelIndex]["transforms"][channelRowIndex][channelColIndex][5].value} // t_trig
+				{~control[channelIndex]["keysHeld"] == [0,1,0]}{~channels[channelIndex]["transforms"][channelRowIndex][channelColIndex][4].value}  // mod
+				{~control[channelIndex]["keysHeld"] == [1,1,0]}{~channels[channelIndex]["transforms"][channelRowIndex][channelColIndex][5].value}  // t_trig
 				{~control[channelIndex]["keysHeld"] == [0,1,1]}{~channels[channelIndex]["transforms"][channelRowIndex][channelColIndex][6].value}; // volume
 
 				~monome.levset(col,row,intensity * 4);
 			}
 
 			/*--------------------------------------------------------------------*/
-			/*****************************recorders********************************/
+			/*                            recorders                               */
 			/*--------------------------------------------------------------------*/
 
 			{col == 11}{
@@ -145,7 +145,7 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 			}
 
 			/*--------------------------------------------------------------------*/
-			/***************************bufTransforms******************************/
+			/*                          bufTransforms                             */
 			/*--------------------------------------------------------------------*/
 
 			{col > 11}{
@@ -153,7 +153,7 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 				channelColIndex = col - 12;
 
 				case
-				{~control[channelIndex]["keysHeld"][0..1] == [0,0]}{
+				{~control[channelIndex]["keysHeld"] == [0,0,0]}{
 
 					case
 					{~control[channelIndex]["levels"].sum == 0}{"Choose level!".warn}
@@ -162,8 +162,8 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 					{intensity == 2}{~channels[channelIndex]["bufTransforms"][channelRowIndex][channelColIndex][2].value}
 					{intensity == 3}{~channels[channelIndex]["bufTransforms"][channelRowIndex][channelColIndex][3].value};
 				}
-				{~control[channelIndex]["keysHeld"] == [0,1,0]}{~channels[channelIndex]["bufTransforms"][channelRowIndex][channelColIndex][4].value} // mod
-				{~control[channelIndex]["keysHeld"] == [1,1,0]}{~channels[channelIndex]["bufTransforms"][channelRowIndex][channelColIndex][5].value} // t_trig
+				{~control[channelIndex]["keysHeld"] == [0,1,0]}{~channels[channelIndex]["bufTransforms"][channelRowIndex][channelColIndex][4].value}  // mod
+				{~control[channelIndex]["keysHeld"] == [1,1,0]}{~channels[channelIndex]["bufTransforms"][channelRowIndex][channelColIndex][5].value}  // t_trig
 				{~control[channelIndex]["keysHeld"] == [0,1,1]}{~channels[channelIndex]["bufTransforms"][channelRowIndex][channelColIndex][6].value}; // volume
 
 				~monome.levset(col,row,intensity * 4);
@@ -171,7 +171,7 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 		},
 
 		/*--------------------------------------------------------------------*/
-		/**************************control section*****************************/
+		/*                         control section                            */
 		/*--------------------------------------------------------------------*/
 
 		{
@@ -190,7 +190,7 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 					~control[controlIndex]["levels"][channelRowIndex] = 1;
 				};
 
-				4.do({arg i; ~monome.levset(controlIndex * 4, 12 + i,(~control[controlIndex]["levels"][i] * 15))}); // set each led
+				4.do({ |i| ~monome.levset(controlIndex * 4, 12 + i,(~control[controlIndex]["levels"][i] * 15))}); // set each led
 
 			}
 			{channelColIndex == 1}{
@@ -320,7 +320,7 @@ OSCdef(\mapper, {arg msg, time, addr, port;
 						})
 					});
 
-					4.do({arg i; ~monome.levset((controlIndex*4)+3,12 + i,(~control[controlIndex]["volume"][i].value*4))});
+					4.do({ |i| ~monome.levset((controlIndex*4)+3,12 + i,(~control[controlIndex]["volume"][i].value*4))});
 
 				}
 				{~control[controlIndex]["keysHeld"][1] == 1}{

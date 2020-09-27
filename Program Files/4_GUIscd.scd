@@ -34,10 +34,7 @@
 	moduleW = Window(name,200@200);
 	scale = moduleW.bounds.height/10;
 
-
-
-	[1,2,3,0].do({ // is this the order???
-		arg i;
+	[1,2,3,0].do({ |i|    // is this the order???
 
 		levLayout.add(
 			levels[i]
@@ -47,8 +44,8 @@
 		)
 	});
 
-	4.do({
-		arg i;
+	4.do({ |i|
+
 		var string = [arg0,arg1,"clear \ntrig","t_trig"];
 
 		trigLayout.add(
@@ -59,8 +56,7 @@
 		)
 	});
 
-	4.do({
-		arg i;
+	4.do({ |i|
 		var string = ["fadeTime","tenFold","tenth","mod"];
 
 		modLayout.add(
@@ -71,8 +67,7 @@
 		)
 	});
 
-	4.reverseDo({
-		arg i;
+	4.reverseDo({ |i|
 
 		volLayout.add(
 			volume[i]
@@ -123,11 +118,9 @@
 
 	////////////
 
-	buttIO.size.do({
-		arg i;
+	buttIO.size.do({ |i|
 
-		buttIO[i].size.do({
-			arg j;
+		buttIO[i].size.do({ |j|
 
 			colIO[i].add(
 				buttIO[i][j]
@@ -138,14 +131,11 @@
 
 	});
 
-	buttMod.size.do({
-		arg i;
+	buttMod.size.do({ |i|
 
-		buttMod[i].size.do({
-			arg j;
+		buttMod[i].size.do({ |j|
 
-			buttMod[i][j].size.do({
-				arg k;
+			buttMod[i][j].size.do({ |k|
 
 				if(~synths["transforms"][j][k].notNil,{
 
@@ -166,11 +156,9 @@
 		})
 	});
 
-	buttRec.size.do({
-		arg i;
+	buttRec.size.do({ |i|
 
-		buttRec[i].size.do({
-			arg j;
+		buttRec[i].size.do({ |j|
 
 			colRec[i].add(
 				buttRec[i][j]
@@ -180,14 +168,11 @@
 		})
 	});
 
-	buttBuf.size.do({
-		arg i;
+	buttBuf.size.do({ |i|
 
-		buttBuf[i].size.do({
-			arg j;
+		buttBuf[i].size.do({ |j|
 
-			buttBuf[i][j].size.do({
-				arg k;
+			buttBuf[i][j].size.do({ |k|
 
 				rowBuf[i][j].add(
 					buttBuf[i][j][k]
@@ -199,8 +184,8 @@
 
 	});
 
-	monomeView = 4.collect({
-		arg channelIndex;
+	monomeView = 4.collect({ |channelIndex|
+
 		HLayout(
 			colIO[channelIndex],
 			VLayout(
@@ -217,15 +202,14 @@
 		)
 	});
 
-	mixerView = 4.collect({
-		arg channelIndex;
+	mixerView = 4.collect({ |channelIndex|
 
-		var knobs = 2.collect({
-			arg i;
-			2.collect({
-				arg j;
-				Array.fill(4,{
-					arg k;
+		var knobs = 2.collect({ |i|
+
+			2.collect({ |j|
+
+				Array.fill(4,{ |k|
+
 					Knob()
 					.value_(0.5)
 					.color_([wineCol,Color.black,textCol,textCol])
@@ -235,14 +219,11 @@
 			})
 		});
 
-		var knobValues = knobs.size.collect({
-			arg i;
+		var knobValues = knobs.size.collect({ |i|
 
-			knobs[i].size.collect({
-				arg j;
+			knobs[i].size.collect({ |j|
 
-				knobs[i][j].size.collect({
-					arg k;
+				knobs[i][j].size.collect({ |k|
 
 					NumberBox()
 					.value_(knobs[i][j][k].value)
@@ -253,15 +234,13 @@
 			})
 		});
 
-		var knobLabels = knobs.size.collect({
-			arg i;
+		var knobLabels = knobs.size.collect({ |i|
 
-			knobs[i].size.collect({
-				arg j;
+			knobs[i].size.collect({ |j|
+
 				var string = [["thresh","midFreq","midGain","midQ",],["loFreq","loGain","hiFreq","hiGain"]];
 
-				knobs[i][j].size.collect({
-					arg k;
+				knobs[i][j].size.collect({ |k|
 
 					StaticText()
 					.string_(string[j][k])
@@ -272,16 +251,16 @@
 			})
 		});
 
-		var sliders = Array.fill(2,{
-			arg i;
+		var sliders = Array.fill(2,{ |i|
+
 			Slider()
 			.maxWidth_(screenB.width/36)
 			.action_({numBox[i].value_(sliders[i].value)})
 			.background_(wineCol)
 		});
 
-		var numBox = Array.fill(2,{
-			arg i;
+		var numBox = Array.fill(2,{ |i|
+
 			NumberBox()
 			.maxWidth_(screenB.width/48)
 			.step_(0.01)
@@ -299,14 +278,12 @@
 		});
 
 		var knobChannel = {Array.fill(2,{VLayout()})}!2;
-		knobs.size.do({
-			arg i;
 
-			knobs[i].size.do({
-				arg j;
+		knobs.size.do({ |i|
 
-				knobs[i][j].size.do({
-					arg k;
+			knobs[i].size.do({ |j|
+
+				knobs[i][j].size.do({ |k|
 
 					knobChannel[i][j].add(knobLabels[i][j][k], align: \bottom);
 					knobChannel[i][j].add(
@@ -350,10 +327,10 @@
 
 	*/
 
-	labels = 2.collect({
-		arg alignIndex;
-		4.collect({
-			arg channelIndex;
+	labels = 2.collect({ |alignIndex|
+
+		4.collect({ |channelIndex|
+
 			var align = [\left,\center];
 
 			StaticText()
@@ -366,11 +343,9 @@
 	});
 
 	lineSeparator = {VLayout()}!3;
-	lineSeparator.size.do({
-		arg i;
+	lineSeparator.size.do({ |i|
 
-		24.do({
-			arg j;
+		24.do({ |j|
 
 			lineSeparator[i].add(
 				StaticText()
