@@ -2,8 +2,7 @@
 
 (
 (
-~info = {
-	arg synth = nil;
+~info = { |synth = nil|
 	var name,arg0,arg1;
 	var moduleW, scale;
 	var levels = Array.fill(4,{Button()});

@@ -237,7 +237,7 @@ SynthDef(\recorder,{
 
 				var pointer = Rand(0.0,1.0) + LFNoise1.kr(12,noise);
 
-				var sig = TGrains.ar(2,trig,bufnum,BufRateScale.kr(bufnum) * rate,pointer * bufDur,1.0,Latch.kr(LFNoise2.kr(0.1),trig),\amp.kr(1));
+				TGrains.ar(2,trig,bufnum,BufRateScale.kr(bufnum) * rate,pointer * bufDur,1.0,Latch.kr(LFNoise2.kr(0.1),trig),\amp.kr(1));
 			},
 			args: [\rate,\impulseTrig],
 			vals: [[0.4,0.4,0.4],[1.0,0.0,0.4]],

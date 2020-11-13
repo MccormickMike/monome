@@ -12,8 +12,7 @@ server.waitForBoot({
 
 	server.sync;
 
-	PathName((PathName(thisProcess.nowExecutingPath).parentPath +/+ "Program Files/")).entries.do({
-		arg entry, index;
+	PathName((PathName(thisProcess.nowExecutingPath).parentPath +/+ "Program Files/")).entries.do({ |entry, index|
 
 		if(index < 4,{entry.fullPath.load}) // remove when the GUI works!
 	});
@@ -35,11 +34,9 @@ Tdef(\waves,{
 	var offset = 0;
 	loop{
 
-		16.do({
-			arg i;
+		16.do({ |i|
 
-			16.do({
-				arg j;
+			16.do({ |j|
 				var x = i + offset % 16;
 				var y = j + offset % 16;
 
