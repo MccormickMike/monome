@@ -1,3 +1,3 @@
-# monome
+# ternOP
  
-Real-time processing setup for monome 256
+Monome 256 setup for ternOP duo
