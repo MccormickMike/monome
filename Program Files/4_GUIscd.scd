@@ -93,7 +93,6 @@
 	});
 });
 
-
 (
 ~mainW = {
 	var screenB = Window.availableBounds;

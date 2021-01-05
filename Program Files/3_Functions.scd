@@ -10,13 +10,11 @@
 		// could add a postln here for a bit of help?
 	};
 
-
 	/*
 
 	consider adding: if(Ndef((inName ++ channelIndex).asSymbol).isPlaying.not,{raise an error when transforms are activated?})
 
 	*/
-
 
 	///////////////////////////////////////////////////// io section
 

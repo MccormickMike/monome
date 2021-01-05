@@ -9,7 +9,6 @@ SynthDef(\recorder,{
 
 ~synths = Dictionary[
 
-
 	"i/o synths" -> Dictionary[
 
 		"inPlayer" -> {
@@ -46,8 +45,7 @@ SynthDef(\recorder,{
 			sig = BHiShelf.ar(sig,\filtFreqHi.kr(0.1).linlin(0.0,1.0,20,20000),\rsHi.kr(0.25),\dBHi.kr(-6));
 		},
 
-		"analyser" -> {
-			arg chan;   //what is this?? Besides me trying to be clever....
+		"analyser" -> { |chan|   //what is this?? Besides me trying to be clever....
 
 			var sig = In.ar(\inBus.kr,1);
 			var trig = Impulse.kr(\trigFreq.kr(4));
@@ -72,8 +70,7 @@ SynthDef(\recorder,{
 			SendReply.kr(trig, '/analysis', specs);
 			busVars = thisFunction.def.varNames[5..];
 
-			specs.collect({
-				arg spec, index;
+			specs.collect({ |spec, index|
 				var busName;
 
 				busName = busVars[index].asString ++ "Bus";
@@ -100,7 +97,7 @@ SynthDef(\recorder,{
 				sig = Pan2.ar(sig,LFNoise2.kr(0.2,0.7),\amp.kr(1));
 			},
 			args: [\dev,\dummyArg],
-			vals: [[0.01,40,400],[1,1,1]],
+			vals: [[0,0,0],[1,1,1]],
 		)]
 
 		++
@@ -160,7 +157,7 @@ SynthDef(\recorder,{
 
 				var sig = In.ar(\inBus.kr,1);
 				var mute = ToggleFF.kr(\trig.tr);
-				sig = sig*(1-mute) + LocalIn.ar(1);
+				sig = sig * (1 - mute) + LocalIn.ar(1);
 				#freq, hasFreq = Pitch.kr(sig, ampThreshold: 0.05, median: 7);
 				trig = 1-hasFreq;
 				sig = sig*trig;
