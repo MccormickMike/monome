@@ -49,9 +49,6 @@ e[\last].value
 // Stepper could be used with \t_trig as a reset? similar behaviour could also come from Phasor?
 
 
-
-
-
 // \analyser must come after output/processing also?
 // add interruptions that can be triggered by buttonhold?
 
@@ -95,10 +92,11 @@ e[\last].value
 
 (
 Ndef(\crush,{
-	arg inBus,sRate,bits,t_trig,amp=1.0;
-	var env,freq,hasFreq,mod,sig;
+	arg sRate,bits;
 
-	sig = In.ar(inBus,1);
+	var sig = In.ar(\inBus.kr,1);
+
+	var trig = \trig.tr;
 
 	/*
 
@@ -107,15 +105,15 @@ Ndef(\crush,{
 
 	*/
 
-
 	sig = Decimator.ar(sig,s.sampleRate * sRate, 24 * bits);
 
-	sig = Pan2.ar(sig,LFNoise2.kr(0.2,0.7),amp);
+	sig = Pan2.ar(sig,LFNoise2.kr(0.2,0.7),\amp.kr(1));
 
 }).play
 )
 
-// Decimator: t_trig cycles through Select.ar(bitCrush,1/1,sampleRateSquash/both); changing values driven by LFNoise0.ar(rate!2) for max glitchiness
+// Decimator: t_trig cycles through Select.ar(bitCrush,1/1,sampleRateSquash/both);
+// changing values driven by LFNoise0.ar(rate!2) for max glitchiness
 
 
 /**********************************************************************/
@@ -143,48 +141,8 @@ vals: [[0,3,5],[0.08,0.05,0.02]],
 
 /**********************************************************************/
 
-(
-name: "freezeBells",
-func: {
-	arg inBus,outBus,pan=0,amp=0.8;
-	var chain,ramp,rate,sig;
-
-	ramp = Line.ar(-1.0,-0.001,ExpRand(8.0,14.0),doneAction: 2);
-	sig = In.ar(inBus,1);
-	chain = FFT(LocalBuf(1024),sig);
-	chain = PV_Freeze(chain,1);
-	chain = PV_BrickWall(chain,ramp);
-	sig = IFFT(chain);
-	sig = Pan2.ar(sig,pan,amp);
-
-},
-args: [],
-vals: [[],[]],
-)
-/**********************************************************************/
-
 
 PV_BinDelay
-
-(
-SynthDef("resonNoise2_mod", {
-	arg inBus, outBus=0, transferBus=0, noiseVol=0.1, inOutVol=0.1, centerFreq=1000, lfoFreq=0.01, rq = 0.1, onOff=1, gate=1, pauseGate=1;
-	var env, in, noiseOut, inOut, pauseEnv, freq;
-
-	in = SoundIn.ar(0);
-	freq = max(centerFreq+SinOsc.ar(lfoFreq, 0, centerFreq*0.8), 40);
-	inOut = Resonz.ar(in, freq, rq);
-	noiseOut = Resonz.ar(WhiteNoise.ar(1), freq, rq);
-	env = EnvGen.kr(Env.asr(0,1,0), gate, doneAction:2);
-	pauseEnv = EnvGen.kr(Env.asr(0,1,0), pauseGate, doneAction:1);
-	noiseOut = Pan2.ar(noiseOut, LFNoise2.kr(lfoFreq+5/20));
-	Out.ar(transferBus, inOut*LagUD.kr(onOff, 0.1, 1)*env*pauseEnv*inOutVol);
-	Out.ar(outBus, noiseOut*LagUD.kr(onOff, 0.1, 1)*env*pauseEnv*noiseVol);
-}).add;
-)
-
-x = Synth("resonNoise2_mod")
-x.set(\centerFreq,800,\noiseVol,0.7,\inOutVol,0.6,\lfoFreq,0.01)
 
 /**********************************************************************/
 
@@ -209,6 +167,8 @@ SynthDef("noiseGliss2_mod", {
 	Out.ar(outBus, out0*vol*pauseEnv*env);
 }).add;
 )
+
+x = Synth("noiseGliss2_mod")
 
 /**********************************************************************/
 
@@ -252,6 +212,9 @@ SynthDef("cycleGripper_mod", {
 	Out.ar(outBus, local*env*pauseEnv);
 }).add;
 )
+
+x = Synth("cycleGripper_mod")
+
 /**********************************************************************/
 (
 SynthDef(\flanger, {
@@ -285,14 +248,13 @@ SynthDef(\chorus, {
 	arg inbus=10, outbus=0, predelay=0.08, speed=0.05, depth=0.1, ph_diff=0.5;
 	var in, sig, modulators, numDelays = 12;
 
-	in = SoundIn.ar(0);
-	modulators = Array.fill(numDelays, {arg i;
-		������	LFPar.kr(speed * rrand(0.94, 1.06), ph_diff * i, depth, predelay);});�
-	sig = DelayC.ar(in, 0.5, modulators);��
+	in = SinOsc.ar(LFNoise0.kr(2).range(600,2000)) * 0.3;
+	modulators = Array.fill(numDelays, {arg i;LFPar.kr(speed * rrand(0.94, 1.06), ph_diff * i, depth, predelay);});
+	sig = DelayC.ar(in, 0.5, modulators);
 	sig = sig.sum; //Mix(sig);
 	Out.ar(outbus, sig!2); // output in stereo
 
-}).load(s)
+}).add
 
 Synth(\chorus)
 
@@ -315,17 +277,7 @@ Synth(\chorus)
 }.play
 )
 
-/**********************************************************************/
 
-(
-// sustainer - Audio In
-{
-	var in, compander;
-	in = SoundIn.ar(0);
-	compander = Compander.ar(in,in,MouseX.kr(0.001, 1, 1), 0.1, 1, 0.01, 0.01);
-	compander ! 2 // stereo
-}.play
-)
 /**********************************************************************/
 (
 Ndef(\randCombDelay,{
@@ -361,7 +313,6 @@ Ndef(\twinkle,{ //freq can be controlled by tap tempos and also a Trand
 
 Ndef(\twinkle).clear
 
-b = ~voice
 /**********************************************************************/
 (
 x = { var trig, rate, framesInBuffer;
@@ -372,4 +323,15 @@ x = { var trig, rate, framesInBuffer;
 		[framesInBuffer/(LFNoise0.kr(8)), MouseY.kr(0, framesInBuffer)]);
 	BufRd.ar(2, b.bufnum, x);
 }.play;
+)
+
+/**********************************************************************/
+// raise the noise floor, process that?
+(
+Ndef(\floorUp,{
+
+	var sig = SoundIn.ar(0);
+	var compander = Compander.ar(sig,sig,MouseX.kr(0.001, 1, 1), 0.1,1, 0.01, 0.01);
+	compander.tanh;
+}).play
 )

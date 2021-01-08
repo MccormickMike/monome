@@ -83,21 +83,20 @@ SynthDef(\recorder,{
 
 	"transforms" -> (
 		[(
-			name: "ringMod",
+			name: "ringer",
 			func: {
-				arg dummyArg;    // gotta fix this ASAP!!!
 				var freq,hasFreq;
-
 				var sig = In.ar(\inBus.kr,1);
-				var trig = \trig.tr;
+				var modFreq = \modFreq.kr().lincurve(0.0,1,0.1,15);
+				var dev = \dev.kr().lincurve(0.0,1.0,0.001,2900,5);
+				var mod = Select.kr(ToggleFF.kr(\trig.tr),[dev,LFNoise0.kr(modFreq).range(0.001,4000)]);
 
-				var dev = Select.kr(Trig.kr(trig,TRand.kr(0.1,1.0,trig)),[\dev.kr,TRand.kr(30,2000,trig)]); //make this more interesting!
 				#freq, hasFreq = Pitch.kr(sig, ampThreshold: 0.05, median: 7);
-				sig = sig * (SinOsc.ar(freq*2*SinOsc.ar(dev).range(0.75,1.25)));
-				sig = Pan2.ar(sig,LFNoise2.kr(0.2,0.7),\amp.kr(1));
+				sig = sig * (SinOsc.ar(freq * 2 * SinOsc.kr(mod).range(0.5,2)));
+				sig = Pan2.ar(sig,LFNoise2.kr(0.1,0.5),\amp.kr(0.5));
 			},
-			args: [\dev,\dummyArg],
-			vals: [[0,0,0],[1,1,1]],
+			args: [\dev, \modFreq],
+			vals: [[0,0.6,0.9],[0,0.2,0.7]],
 		)]
 
 		++
@@ -226,7 +225,7 @@ SynthDef(\recorder,{
 			func: {
 				var bufnum = \bufnum.kr;
 				var impulseTrig = \impulseTrig.kr;
-				var noise = impulseTrig.linexp(0.0,1.0,0.1,0.001);
+				var noise = impulseTrig.lincurve(0.0,1.0,0.1,0.001,10);
 				var rate = \rate.kr().linexp(0.0,1.0,0.5,2.0);
 
 				var trig = Impulse.kr(impulseTrig.linexp(0.0,1.0,0.1,12.0)) + \trig.tr;
@@ -237,7 +236,7 @@ SynthDef(\recorder,{
 				TGrains.ar(2,trig,bufnum,BufRateScale.kr(bufnum) * rate,pointer * bufDur,1.0,Latch.kr(LFNoise2.kr(0.1),trig),\amp.kr(1));
 			},
 			args: [\rate,\impulseTrig],
-			vals: [[0.4,0.4,0.4],[1.0,0.0,0.4]],
+			vals: [[0.4,0.4,0.4],[1.0,0.0,0.35]],
 		)]
 
 		++
@@ -264,7 +263,26 @@ SynthDef(\recorder,{
 
 		++
 
-		[nil]
+		[(
+			name: "bufBells",
+			func: {
+				var bufnum = \bufnum.kr;
+				var	trig = \trig.tr;
+				var speed = \sweep.kr().linlin(0.0,1.0,2,10);
+				var rate = \rate.kr().linexp(0.0,1.0,0.25,2.0);
+				var sig = PlayBuf.ar(1,bufnum,BufRateScale.kr(bufnum) * rate,loop:1);
+				var ramp = Env.perc(0.001,speed,-1,2).kr(gate:trig);
+				var pan = TRand.kr(-1.0,1.0,trig);
+
+				var chain = FFT(LocalBuf(1024),sig);
+				chain = PV_Freeze(chain,SetResetFF.kr(TDelay.kr(trig,0.1),trig));
+				chain = PV_BrickWall(chain,ramp);
+				sig = IFFT(chain);
+				sig = Pan2.ar(sig,ramp * pan,\amp.kr(1));
+			},
+			args: [\sweep,\rate],
+			vals: [[0,0.25,1],[1/3,2/3,1]],
+		)]
 
 		++
 

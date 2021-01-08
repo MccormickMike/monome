@@ -258,7 +258,7 @@
 
 				// turn transform off
 				~channels[channelIndex]["transforms"][rowIndex][colIndex][0] = {
-					var synthKey = (name ++ channelIndex).asSymbol;
+					var synthKey = (name ++ channelIndex).asSymbol;                      //move this up to the ~synth vars
 
 					if(Ndef(synthKey).isPlaying,{
 						Ndef(synthKey).end(fadeTime: ~control[channelIndex]["fadeTime"]);
@@ -333,6 +333,8 @@
 				/**********************************************************************/
 
 				// consider changing this function to incorporate the \analyser inputs...could be randomized?!?!?
+				// if(\analyser.isPlaying,{random mapping},{standard mapping})
+
 
 				~channels[channelIndex]["transforms"][rowIndex][colIndex][3] = {
 					var synthKey = (name ++ channelIndex).asSymbol;
@@ -458,12 +460,11 @@
 				var args = ~synths["bufTransforms"][colIndex][\args];
 				var vals = ~synths["bufTransforms"][colIndex][\vals];
 
-
 				/**********************************************************************/
 
 				// turn transform off
 				~channels[channelIndex]["bufTransforms"][rowIndex][colIndex][0] = {
-					var synthKey = (name ++ channelIndex ++ rowIndex).asSymbol;
+					var synthKey = (name ++ channelIndex ++ rowIndex).asSymbol;                //move this up to the ~synth vars
 
 					if(Ndef(synthKey).isPlaying,{
 						Ndef(synthKey).end(fadeTime: ~control[channelIndex]["fadeTime"]);
