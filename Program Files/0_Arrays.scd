@@ -37,8 +37,6 @@ var server = Server.default;
 
 ~buffers = {Array.fill(3,{Buffer.alloc(server, server.sampleRate * 12, 1)})} ! 4;
 
-~window = Buffer.sendCollection(s,Env.perc.discretize); // this can be better, no?
-
 ~busses = {
 	Dictionary[
 		"ampBus" -> Bus.control(server,1),

@@ -52,3 +52,4 @@ Tdef(\waves,{
 );
 
 Tdef(\waves).stop
+~monome.ledall(0);

@@ -35,14 +35,20 @@ SynthDef(\recorder,{
 			sig = BLowShelf.ar(sig,filtFreqLo.linlin(0.0,1.0,20,20000),\rsLo.kr,0);
 			sig = Compander.ar(sig,sig,\compThresh.kr,1,0.5,0.01,0.01);
 			Out.ar(\sendBus.kr,sig);
-			sig = Pan2.ar(sig * mute,\pan.kr,\amp.kr);      // consider rewriting this and using Balance2.ar instead...
+			sig = Pan2.ar(sig * mute,\pan.kr,\amp.kr);
 		},
 
 		"outPlayer" -> {
 			var sig = In.ar(\inBus.kr,2);
-			sig = Compander.ar(sig,sig,\compThresh.kr(0.5),1,0.5,0.01,0.01);
-			sig = FreeVerb.ar(sig,\mix.kr(0.1),\room.kr(100),\damp.kr(0.6),\amp.kr(1));    // get this shit out of here and put it somewhere else!
-			sig = BHiShelf.ar(sig,\filtFreqHi.kr(0.1).linlin(0.0,1.0,20,20000),\rsHi.kr(0.25),\dBHi.kr(-6));
+			var wet = HPF.ar(sig,450); //new
+			sig = Compander.ar(sig,sig,\compThresh.kr(0.8),1,1/3,0.1,0.1); // map these to something?
+
+			wet = FreeVerb.ar(wet,1,0.9,0.9);
+			wet = LPF.ar(wet,2000);
+			wet = HPF.ar(wet,450);
+			wet = wet * \mix.kr(0.1);
+
+			sig = (sig + wet) * \amp.kr(1);
 		},
 
 		"analyser" -> { |chan|   //what is this?? Besides me trying to be clever....
@@ -95,22 +101,61 @@ SynthDef(\recorder,{
 				sig = sig * (SinOsc.ar(freq * 2 * SinOsc.kr(mod).range(0.5,2)));
 				sig = Pan2.ar(sig,LFNoise2.kr(0.1,0.5),\amp.kr(0.5));
 			},
-			args: [\dev, \modFreq],
+			args: [\dev,\modFreq],
 			vals: [[0,0.6,0.9],[0,0.2,0.7]],
 		)]
 
 		++
 
 		[(
-			name: "fftFreeze",
+			name: "crusher",
 			func: {
-				var frames = \frames.kr(4096);
+				var sRate = \sRate.kr().linlin(0,1,0.02,0.1);
+				var bits = \bits.kr().linlin(0,1,0.05,0.2);
+				var sig = In.ar(\inBus.kr,1);
+				var cycle = Stepper.kr(\trig.tr,0,0,2,1,1);
+				var bitsAmpScale = bits.linlin(0.05,0.2,0.3,1);
 
+				sRate = Select.kr(cycle,[sRate,1,sRate]);
+				bits = Select.kr(cycle,[1,bits,bits]);
+				sig = Decimator.ar(sig,SampleRate.ir * sRate, 24 * bits);
+				sig = Pan2.ar(sig,LFNoise2.kr(0.1,0.7),\amp.kr(1) * bitsAmpScale);
+			},
+			args: [\sRate,\bits],
+			vals: [[1,0.5,0],[1,0.5,0]],
+		)]
+
+		++
+
+		[(
+			name: "grinder",
+			func: {
+				var sig = In.ar(\inBus.kr,1);
+				var rand = Array.rand(16,40,600);
+				var rate = \trigRate.kr().lincurve(0.0,1.0,0.5,300,7);
+				var gain = \gain.kr(lag:1).linlin(0,1,2,20);
+				var freq = Duty.kr(Dbrown(0.7,1.0,0.02,inf) * rate.reciprocal!2,\trig.tr,Dshuf(rand,inf));
+				var noise = LFNoise2.kr(2).range(0.8,1.2);
+
+				sig = Amplitude.kr(sig) > 0.2;                                        // maybe this needs to be tuned? could be higher possibly...
+				freq = Select.kr(sig,[freq,Latch.kr(freq,sig) * noise]);
+				sig = SinOsc.ar(freq,mul: gain);
+				sig = RLPF.ar(sig,freq * 2,0.01);
+				sig = Pan2.ar(sig.sum.tanh,0,\amp.kr(0.5) * 0.15);                   // probably need to scale this sucker down...
+			},
+			args: [\trigRate,\gain],
+			vals: [[0.0,0.5,1.0],[0.0,0.5,1.0]],
+		)]
+
+		++
+
+		[(
+			name: "freezer",
+			func: {
 				var dustTrig = \dustTrig.kr().lincurve(0.0,1.0,0.0,3.0);
 				var impulseTrig = \impulseTrig.kr().lincurve(0.0,1.0,0.0,3.0);
-
 				var sig = In.ar(\inBus.kr,1);
-				var chain = FFT(LocalBuf(frames), sig, 0.5, 0, 1, frames);
+				var chain = FFT(LocalBuf(4096), sig);
 				var trig = Dust.kr(dustTrig) + Impulse.kr(impulseTrig) + \trig.tr;
 				trig = Trig.kr(trig,TExpRand.kr(0.1,0.3,trig));
 				chain = PV_Freeze(chain,trig);
@@ -135,7 +180,7 @@ SynthDef(\recorder,{
 				var trig = Dust.kr(dustTrig) + Impulse.kr(impulseTrig) + \trig.tr;
 				var gate = EnvGen.ar(Env.sine(0.1),trig);
 				var rand = TExpRand.kr(0.05,0.3,trig);
-				sig = CombC.ar(sig*gate,0.6,rand,Select.kr(Trig1.kr(trig,rand-0.01),[inf,0]));
+				sig = CombC.ar(sig * gate,0.6,rand,Select.kr(Trig1.kr(trig,rand-0.01),[inf,0]));
 				sig1 = DelayN.ar(sig,0.6,rand*7/5);
 				sig = Pan2.ar(sig,LFNoise2.kr(0.2)) + Pan2.ar(sig1,LFNoise2.kr(0.2));
 				sig * \amp.kr(0.8);
@@ -147,23 +192,45 @@ SynthDef(\recorder,{
 		++
 
 		[(
-			name: "percShiftDelay",
+			name: "fbSwell",
 			func: {
-				var trig,freq,hasFreq;
+				var amp;
+				var sig = In.ar(\inBus.kr,1);
+				var rate = \trigRate.kr().lincurve(0,1,0.5,6,3);
+				var coef = \coef.kr().linlin(0,1,1.001,1.4,3);
+				var trig = Impulse.kr(rate * LFNoise2.kr(0.3).range(0.8,1.1)) + \trig.tr;
+				var env = Env.sine(\win.kr(0.2),).kr(gate:trig);
+				var delay = TRand.kr(0.01,0.05,trig);
 
-				var freqDev = \freqDev.kr().linexp(0.0,1.0,0.5,4.0);
-				var maxDev = \maxDev.kr().lincurve(0.0,1.0,0.0,3.0);
+				sig = (sig * env) + LocalIn.ar(2);
+				amp = Amplitude.kr(sig) > 0.65;                                    //gotta check this shit too!
+				sig = DelayC.ar(sig,0.05,delay);
+				LocalOut.ar(sig.reverse * coef * (1 - Trig.kr(amp,0.1)));
+				sig = LeakDC.ar(HPF.ar(sig.sum,80));
+				sig = Pan2.ar(sig,\pan.kr(0),\amp.kr(1) * 0.3);
+			},
+			args: [\trigRate,\coef],
+			vals: [[0.0,0.5,1.0],[0.0,0.5,1.0]],
+		)]
 
+		++
+
+		[(
+			name: "percShifter",
+			func: {
+				var freqDev = \freqDev.kr().linexp(0.0,1.0,0.5,2.0);
+				var maxDev = \maxDev.kr().lincurve(0.0,1.0,0.25,2.0);
 				var sig = In.ar(\inBus.kr,1);
 				var mute = ToggleFF.kr(\trig.tr);
-				sig = sig * (1 - mute) + LocalIn.ar(1);
-				#freq, hasFreq = Pitch.kr(sig, ampThreshold: 0.05, median: 7);
-				trig = 1-hasFreq;
-				sig = sig*trig;
+				var pitch = Pitch.kr(sig,ampThreshold: 0.2, median: 7);
+				var trig = 1 - pitch[1];
+
+				sig = sig * trig;
+				sig = sig * (1 - mute) + LocalIn.ar(2);
 				sig = PitchShift.ar(sig,1.0,freqDev,maxDev,1.0);
 				sig = LeakDC.ar(sig);
-				LocalOut.ar(sig*(Select.kr(mute,[0.75,1])));
-				sig = Pan2.ar(sig,TRand.kr(-1.0,1.0,trig).lag(maxDev),\amp.kr(1));
+				LocalOut.ar(sig.reverse * (Select.kr(mute,[0.75,1])));
+				sig = Balance2.ar(sig[0],sig[1],0,\amp.kr(1));
 			},
 			args: [\freqDev,\maxDev],
 			vals: [[0.0,0.5,1.0],[0.0,0.5,1.0]],
@@ -199,18 +266,6 @@ SynthDef(\recorder,{
 
 		++
 
-		[nil]
-
-		++
-
-		[nil]
-
-		++
-
-		[nil]
-
-		++
-
 		(nil!10)
 
 		++
@@ -221,7 +276,7 @@ SynthDef(\recorder,{
 
 	"bufTransforms" -> (
 		[(
-			name: "tGrainz",
+			name: "grainer",
 			func: {
 				var bufnum = \bufnum.kr;
 				var impulseTrig = \impulseTrig.kr;
@@ -267,26 +322,45 @@ SynthDef(\recorder,{
 			name: "bufBells",
 			func: {
 				var bufnum = \bufnum.kr;
-				var	trig = \trig.tr;
+				var	trig = \trig.tr(1);
 				var speed = \sweep.kr().linlin(0.0,1.0,2,10);
-				var rate = \rate.kr().linexp(0.0,1.0,0.25,2.0);
-				var sig = PlayBuf.ar(1,bufnum,BufRateScale.kr(bufnum) * rate,loop:1);
-				var ramp = Env.perc(0.001,speed,-1,2).kr(gate:trig);
+				var rate = \rate.kr().linexp(0.0,1.0,0.5,2.0);
+				var ramp = Env.perc(0.001,speed,-1,0).kr(gate:trig);
 				var pan = TRand.kr(-1.0,1.0,trig);
+				var sig = PlayBuf.ar(1,bufnum,BufRateScale.kr(bufnum) * rate,1,startPos: BufFrames.kr(bufnum) * TRand.kr(0,1,1),loop:1);
 
-				var chain = FFT(LocalBuf(1024),sig);
-				chain = PV_Freeze(chain,SetResetFF.kr(TDelay.kr(trig,0.1),trig));
-				chain = PV_BrickWall(chain,ramp);
-				sig = IFFT(chain);
-				sig = Pan2.ar(sig,ramp * pan,\amp.kr(1));
+				sig = FFT(LocalBuf(4096),sig);
+				sig = PV_Freeze(sig,1);
+				sig = PV_BrickWall(sig,ramp);
+				sig = IFFT(sig);
+				sig = Pan2.ar(sig,ramp.linlin(-1,0.001,pan,pan.neg),\amp.kr(1));
 			},
 			args: [\sweep,\rate],
-			vals: [[0,0.25,1],[1/3,2/3,1]],
+			vals: [[0,0,1],[0,0.5,1]],
 		)]
 
 		++
 
-		[nil]
+		[(
+			name: "bufRepeater",
+			func: {
+				var bufnum = \bufnum.kr;
+				var trigRate = \trigRate.kr().linlin(0,1,0.3,10);
+				var gain = \gain.kr().linlin(0,1,1,5);
+
+				var trig = Impulse.kr(trigRate) + \trig.tr;
+				var normRand = TRand.kr(0,1,trig);
+				var impulse = Impulse.kr(TRand.kr(20,120,trig));
+				var dur = (normRand * 0.05) + 0.01;
+				var rate = normRand + 0.5;
+				var pan = (normRand * 2) - 1;
+
+				var sig = GrainBuf.ar(2,impulse,dur,bufnum,BufRateScale.kr(bufnum) * rate,normRand,2,pan,-1,mul: \amp.kr(1) * gain);
+				sig = HPF.ar(sig,50).clip2(0.05);
+			},
+			args: [\trigRate,\gain],
+			vals: [[0.0,0.5,1.0],[0.0,0.5,1.0]],
+		)]
 	),
 
 ];

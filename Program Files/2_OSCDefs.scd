@@ -204,8 +204,10 @@ OSCdef(\mapper, { |msg, time, addr, port|
 						var bps = currentTapTime - ~control[controlIndex]["previousDustTime"];
 
 						if(bps < 4.0, {
-							"dust Freq: %".format(bps.reciprocal).postln;
-							~control[controlIndex]["dustTrig"] = (bps.reciprocal).explin(0.25,10.0,0.0,1.0);
+							var val = (bps.reciprocal).explin(0.25,10.0,0.0,1.0);
+
+							"\ndust% Freq: %".format(controlIndex, val).postln;
+							~control[controlIndex]["dustTrig"] = val;
 							Tdef(("dustTrig" ++ controlIndex).asSymbol,{
 								inf.do({
 									~monome.levset((controlIndex * 4) + 1,channelRowIndex + 12,15);
@@ -232,8 +234,10 @@ OSCdef(\mapper, { |msg, time, addr, port|
 						var bps = currentTapTime - ~control[controlIndex]["previousImpulseTime"];
 
 						if(bps < 4.0, {
-							"impulse Freq: %".format(bps.reciprocal).postln;
-							~control[controlIndex]["impulseTrig"] = (bps.reciprocal).explin(0.25,10.0,0.0,1.0);
+							var val = (bps.reciprocal).explin(0.25,10.0,0.0,1.0);
+
+							"\nimpulse% Freq: %".format(controlIndex,val).postln;
+							~control[controlIndex]["impulseTrig"] = val;
 							Tdef(("impulseTrig" ++ controlIndex).asSymbol,{
 								inf.do({
 									~monome.levset((controlIndex * 4) + 1,channelRowIndex + 12,15);
@@ -259,6 +263,7 @@ OSCdef(\mapper, { |msg, time, addr, port|
 					{~control[controlIndex]["cleared"] == 1}{~control[controlIndex]["cleared"] = 0; ~monome.levset(col,row,0)};
 				}
 				{channelRowIndex == 3}{
+
 					if(~control[controlIndex]["keysHeld"][1] == 1,{
 						~control[controlIndex]["keysHeld"][0] = value;
 						~monome.levset(col,row,value*15);
@@ -320,13 +325,25 @@ OSCdef(\mapper, { |msg, time, addr, port|
 						})
 					});
 
-					4.do({ |i| ~monome.levset((controlIndex*4)+3,12 + i,(~control[controlIndex]["volume"][i].value*4))});
+					4.do({ |i| ~monome.levset((controlIndex * 4)+3,12 + i,(~control[controlIndex]["volume"][i].value * 4))}); //do I need the .value here?
 
 				}
 				{~control[controlIndex]["keysHeld"][1] == 1}{
+
 					if(channelRowIndex == 3,{
-						~control[controlIndex]["keysHeld"][2] = 1;
-						"volume Mod".postln
+
+						case
+						{~control[controlIndex]["keysHeld"][0] == 0}{
+							~control[controlIndex]["keysHeld"][2] = 1;
+							"volume Mod".postln
+						}
+						{~control[controlIndex]["keysHeld"][0] == 1}{
+
+							~control[controlIndex]["keysHeld"][2] = 1;
+							~control[controlIndex]["dustTrig"] = {1.0.rand}.value;
+							~control[controlIndex]["impulseTrig"] = {1.0.rand}.value;
+							"randVals".postln;
+						}
 					});
 				};
 			};

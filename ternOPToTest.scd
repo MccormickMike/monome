@@ -24,38 +24,56 @@ Ndef(\comber,{
 Ndef(\comber).set(\trigRate,0,\grainSize,1)
 Ndef(\comber).set(\trig,1)
 
-// Decimator goes here also - bit crusher don't need no input! :)
-
-/**********************************************************************/
-
-
 /**********************************************************************/
 
 
 ~buf = Buffer.readChannel(s,"/Users/mikemccormick/Desktop/GHOST samples/stereo/ciaccona.aiff",channels:[0])
+~buf0 = Buffer.readChannel(s,"/Users/mikemccormick/Desktop/GHOST samples/stereo/exploding-lightbulb copy 2.wav",channels:[0])
 var sig = PlayBuf.ar(1,~buf,BufRateScale.kr(~buf),loop:1);
 
 // add compression?
 
-[(
-	name: "percShiftDelay",
-	func: {
-		var trig,freq,hasFreq;
 
-		var freqDev = \freqDev.kr().linexp(0.0,1.0,0.5,4.0);
-		var maxDev = \maxDev.kr().lincurve(0.0,1.0,0.0,3.0);
+/**********************************************************************/
 
-		var sig = In.ar(\inBus.kr,1);
-		var mute = ToggleFF.kr(\trig.tr);
-		sig = sig * (1 - mute) + LocalIn.ar(1);
-		#freq, hasFreq = Pitch.kr(sig, ampThreshold: 0.05, median: 7);
-		trig = 1-hasFreq;
-		sig = sig*trig;
-		sig = PitchShift.ar(sig,1.0,freqDev,maxDev,1.0);
-		sig = LeakDC.ar(sig);
-		LocalOut.ar(sig*(Select.kr(mute,[0.75,1])));
-		sig = Pan2.ar(sig,TRand.kr(-1.0,1.0,trig).lag(maxDev),\amp.kr(1));
-	},
-	args: [\freqDev,\maxDev],
-	vals: [[0.0,0.5,1.0],[0.0,0.5,1.0]],
-)]
+
+(
+// name: "boomer",
+Ndef(\test,{
+	var dustTrig = \dustTrig.kr().lincurve(0.0,1,0.1,4);
+	var impulseTrig = \impulseTrig.kr().lincurve(0.0,1.0,0.5,12.0);
+	var trig = Dust.kr(dustTrig) + Impulse.kr(impulseTrig) + \trig.tr;
+
+	// var sig = In.ar(\inBus.kr,1);  // integrate this shit!! increased input slows down modulation speed?
+
+	// several noise modulators feeding eachother - can go from pitched melodies to noise!
+
+
+	var env = Env.perc(0.01,(impulseTrig + dustTrig).reciprocal,curve: -3).kr(gate:trig);
+	var sig = BrownNoise.ar(30!2);  //clipnoise? Can i make noise from modulated sines?
+
+	sig = (sig * env).tanh;
+
+	sig = Balance2.ar(sig[0],sig[1],\pan.kr(0),\amp.kr(0.5) * 0.25)
+
+}).play
+// args: [\dustTrig,\impulseTrig],
+// vals: [[0.0,0.5,1.0],[0.0,0.5,1.0]],
+)
+
+Ndef(\test).set(\amp,1,\impulseTrig,0.6,\dustTrig,1)
+Ndef(\test).set(\trig,1)
+Ndef(\test).clear
+
+
+
+
+
+
+
+
+
+
+
+
+

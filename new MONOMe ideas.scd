@@ -1,5 +1,3 @@
-
-
 // make an input module/option that plays back buffers?
 // Could be useful for OJKOS concerts, solo concerts, etc.
 
@@ -21,9 +19,6 @@ PV_BinDelay // See Pluta's Spec_Delay mod
 
 PitchShift
 PitchShiftPA
-
-// EXPLORE DEMAND ENVGEN - \gate arg!!!
-
 
 
 // some sort of harmony generator/bell thing...
@@ -52,6 +47,9 @@ e[\last].value
 // \analyser must come after output/processing also?
 // add interruptions that can be triggered by buttonhold?
 
+
+
+// should make \lag an evironment variable like fadeTime that can be mapped to all args?
 
 
 /**********************************************************************/
@@ -87,34 +85,6 @@ e[\last].value
 
 // t_trig values could be [~busses[channelIndex]["onsetsBus"],~busses[channelIndex]["hasFreqBus"]].choose, for example
 // t_trig could be silenceBus for bufTransforms!!!
-
-/*****************************************************************/
-
-(
-Ndef(\crush,{
-	arg sRate,bits;
-
-	var sig = In.ar(\inBus.kr,1);
-
-	var trig = \trig.tr;
-
-	/*
-
-	t-trig in Select chooses between bitCrush/sRateSquash/both
-	LFNoise0 drives the glitchiness...
-
-	*/
-
-	sig = Decimator.ar(sig,s.sampleRate * sRate, 24 * bits);
-
-	sig = Pan2.ar(sig,LFNoise2.kr(0.2,0.7),\amp.kr(1));
-
-}).play
-)
-
-// Decimator: t_trig cycles through Select.ar(bitCrush,1/1,sampleRateSquash/both);
-// changing values driven by LFNoise0.ar(rate!2) for max glitchiness
-
 
 /**********************************************************************/
 

@@ -79,7 +79,7 @@
 
 		if(Ndef(synthKey).isPlaying,{
 			Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
-			Ndef(synthKey).set(\trig,1);         // this trigger is .xset -- do I still want that??? Or is muting a sudden command?
+			Ndef(synthKey).set(\trig,1);
 			"mute% on".format(channelIndex).postln
 		},{
 			"% not playing".format(synthKey).postln
@@ -130,12 +130,12 @@
 			Ndef(synthKey).set(
 				\inBus,~players[channelIndex][\outBus],
 				\amp,(~control[channelIndex]["volume"].sum) / 12,
-				\mix,0.001
+				\mix,0
 			);
 			"% on - lvl 1".format(synthKey).postln
 		},{
 			Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
-			Ndef(synthKey).xset(\inBus,~players[channelIndex][\outBus],\mix,0.001)
+			Ndef(synthKey).xset(\inBus,~players[channelIndex][\outBus],\mix,0)
 		})
 	};
 
@@ -155,12 +155,12 @@
 			Ndef(synthKey).set(
 				\inBus,~players[channelIndex][\outBus],
 				\amp,(~control[channelIndex]["volume"].sum) / 12,
-				\mix,0.05
+				\mix,0.1
 			);
 			"% on - lvl 2".format(synthKey).postln
 		},{
 			Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
-			Ndef(synthKey).xset(\inBus,~players[channelIndex][\outBus],\mix,0.05)
+			Ndef(synthKey).xset(\inBus,~players[channelIndex][\outBus],\mix,0.1)
 		})
 	};
 
@@ -180,12 +180,12 @@
 			Ndef(synthKey).set(
 				\inBus,~players[channelIndex][\outBus],
 				\amp,(~control[channelIndex]["volume"].sum) / 12,
-				\mix,0.1
+				\mix,0.6
 			);
 			"% on - lvl 3".format(synthKey).postln
 		},{
 			Ndef(synthKey).fadeTime = ~control[channelIndex]["fadeTime"];
-			Ndef(synthKey).xset(\inBus,~players[channelIndex][\outBus],\mix,0.1)
+			Ndef(synthKey).xset(\inBus,~players[channelIndex][\outBus],\mix,0.6)
 		})
 	};
 
@@ -389,7 +389,15 @@
 					var synthKey = (name ++ channelIndex).asSymbol;
 
 					if(Ndef(synthKey).isPlaying,{
-						Ndef(synthKey).set(\trig,1);
+						// original
+						// Ndef(synthKey).set(\trig,1);
+
+						// new
+						Ndef(synthKey).set(
+							args[0],modFunc.(~control[channelIndex]["dustTrig"]),
+							args[1],modFunc.(~control[channelIndex]["impulseTrig"]),
+							\trig,1,
+						)
 					},{
 						"% not playing".format(synthKey).postln;
 					})
@@ -596,7 +604,15 @@
 					var synthKey = (name ++ channelIndex ++ rowIndex).asSymbol;
 
 					if(Ndef(synthKey).isPlaying,{
-						Ndef(synthKey).set(\trig,1);
+						// original
+						// Ndef(synthKey).set(\trig,1);
+
+						// new
+						Ndef(synthKey).set(
+							args[0],modFunc.(~control[channelIndex]["dustTrig"]),
+							args[1],modFunc.(~control[channelIndex]["impulseTrig"]),
+							\trig,1
+						)
 					},{
 						"% not playing".format(synthKey).postln;
 					})
