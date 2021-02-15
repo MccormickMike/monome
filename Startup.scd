@@ -35,15 +35,14 @@ Tdef(\waves,{
 	loop{
 
 		16.do({ |i|
-
+			var x = i + offset % 16;
 			16.do({ |j|
-				var x = i + offset % 16;
 				var y = j + offset % 16;
 
 				~monome.levset(x,y,value[x][y].sin * 15);
-				value[x][y] = value[x][y] + 0.008;
-				offset = 16.rand;
-				0.001.wait;
+				value[x][y] = value[x][y] *  4.rrand(12);
+				offset = 1;
+				0.0003.wait;
 			});
 		});
 	};

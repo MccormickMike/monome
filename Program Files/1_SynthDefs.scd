@@ -141,7 +141,7 @@ SynthDef(\recorder,{
 				freq = Select.kr(sig,[freq,Latch.kr(freq,sig) * noise]);
 				sig = SinOsc.ar(freq,mul: gain);
 				sig = RLPF.ar(sig,freq * 2,0.01);
-				sig = Pan2.ar(sig.sum.tanh,0,\amp.kr(0.5) * 0.15);                   // probably need to scale this sucker down...
+				sig = Pan2.ar(sig.sum.tanh,0,\amp.kr(0.5) * 0.1);                   // probably need to scale this sucker down...
 			},
 			args: [\trigRate,\gain],
 			vals: [[0.0,0.5,1.0],[0.0,0.5,1.0]],
@@ -199,7 +199,7 @@ SynthDef(\recorder,{
 				var rate = \trigRate.kr().lincurve(0,1,0.5,6,3);
 				var coef = \coef.kr().linlin(0,1,1.001,1.4,3);
 				var trig = Impulse.kr(rate * LFNoise2.kr(0.3).range(0.8,1.1)) + \trig.tr;
-				var env = Env.sine(\win.kr(0.2),).kr(gate:trig);
+				var env = Env.sine(\win.kr(0.2)).kr(gate:trig);
 				var delay = TRand.kr(0.01,0.05,trig);
 
 				sig = (sig * env) + LocalIn.ar(2);
