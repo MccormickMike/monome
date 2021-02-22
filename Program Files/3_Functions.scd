@@ -434,7 +434,7 @@
 
 		~channels[channelIndex]["recorders"][rowIndex][0] = {
 			~buffers[channelIndex][rowIndex].free;                                             // explore buffer.zero...
-			~buffers[channelIndex][rowIndex] = Buffer.alloc(s, s.sampleRate * 12, 1);          // avoid using s!! is it used elsewhere in this file?
+			~buffers[channelIndex][rowIndex] = Buffer.alloc(s, s.sampleRate * 12, 1);          // avoid using s!! is var server used elsewhere in this file?
 			"buf% % freed".format(channelIndex,rowIndex).postln;
 		};
 

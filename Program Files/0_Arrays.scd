@@ -3,7 +3,8 @@
 (
 var server = Server.default;
 
-//maybe make some sort of check to see if Monome is plugged in? If not, can it be simulated internally (a la modality)?
+//maybe make some sort of check to see if Monome is plugged in? If not, can it be simulated (w/ modality)?
+
 ~monome = MonoM.new("/monome",0);
 ~monome.useDevice(0);
 ~monome.ledall(0);

@@ -14,8 +14,8 @@
 		rsLo: 0.25,
 
 		pan: 0,
-		sendBus: Bus.audio(s,1),
-		outBus: Bus.audio(s,1), // consider: should mono input signals just get sent thru to the output synth and then everything Splayed? SplayAz for multichannel?
+		sendBus: Bus.audio(s,1), // I think this causes routing issues...must check!
+		outBus: Bus.audio(s,1),
 
 		hardwareOut: 0,
 	),
